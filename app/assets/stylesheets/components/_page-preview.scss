@@ -65,6 +65,7 @@ $mobile-border-bottom-width: 68px;
 }
 
 .app-c-preview__google-url {
+  @include govuk-focusable;
   color: $google-url-colour;
   font-family: arial, sans-serif;
   font-size: 14px;
