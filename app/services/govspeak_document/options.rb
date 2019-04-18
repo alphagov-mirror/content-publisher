@@ -9,7 +9,7 @@ class GovspeakDocument::Options
   end
 
   def to_h
-    { contacts: contacts }
+    { contacts: contacts, attachments: attachments }
   end
 
 private
@@ -21,6 +21,18 @@ private
         ContactsService.new.by_content_id(id)
       end
       contacts.compact
+    end
+  end
+
+  def attachments
+    @attachments ||= begin
+      edition.file_attachment_revisions.map do |attachment|
+        {
+          id: attachment.filename,
+          title: attachment.title,
+          url: attachment.file_asset.file_url,
+        }
+      end
     end
   end
 end
