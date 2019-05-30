@@ -44,9 +44,11 @@ private
 
   def update_file_attachment
     updater = Versioning::FileAttachmentRevisionUpdater.new(file_attachment_revision, user)
-    attributes = attachment_params.slice(:title)
-                                  .merge(blob_attributes(file_attachment_revision))
+    blob_attributes = FileAttachmentBlobService.new(edition.revision)
+                                               .save_file(attachment_params[:file],
+                                                          replacing: file_attachment_revision)
 
+    attributes = attachment_params.slice(:title).merge(blob_attributes)
     updater.assign(attributes)
     context.file_attachment_revision = updater.next_revision
   end
@@ -71,19 +73,5 @@ private
 
   def attachment_params
     params.require(:file_attachment).permit(:file, :title)
-  end
-
-  def blob_attributes(file_attachment_revision)
-    return {} unless attachment_params[:file]
-
-    blob_service = FileAttachmentBlobService.new(file: attachment_params[:file],
-                                                 revision: edition.revision,
-                                                 replacement: file_attachment_revision)
-
-    {
-      blob_id: blob_service.blob_id,
-      filename: blob_service.filename,
-      number_of_pages: blob_service.number_of_pages,
-    }
   end
 end
