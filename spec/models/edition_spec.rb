@@ -207,4 +207,76 @@ RSpec.describe Edition do
       end
     end
   end
+
+  describe "#apply_access_limit" do
+    it "creates an access limit" do
+      edition = create(:edition)
+      user = create(:user)
+
+      expect { edition.apply_access_limit(limit_type: :all_organisations, user: user) }
+        .to change { edition.access_limit }
+        .from(nil)
+        .to(an_instance_of(AccessLimit))
+
+      expect(edition.access_limit).to be_all_organisations
+      expect(edition.access_limit.created_by).to eq(user)
+      expect(edition.access_limit.revision_at_creation).to eq(edition.revision)
+    end
+
+    it "updates the edition last edited information" do
+      edition = create(:edition)
+      user = create(:user)
+
+      travel_to(Time.current) do
+        expect { edition.apply_access_limit(limit_type: :all_organisations, user: user) }
+          .to change { edition.last_edited_by }.to(user)
+          .and change { edition.last_edited_at }.to(Time.current)
+      end
+    end
+
+    context "when an edition is already access limited" do
+      it "updates the active flag on the access limit" do
+        edition = create(:edition, :access_limited)
+        access_limit = edition.access_limit
+
+        expect { edition.apply_access_limit(limit_type: :all_organisations, user: create(:user)) }
+          .to change { access_limit.reload.active }
+          .from(true)
+          .to(false)
+      end
+    end
+  end
+
+  describe "#remove_access_limit" do
+    it "removes an access limit" do
+      edition = create(:edition, :access_limited)
+
+      expect { edition.remove_access_limit(user: create(:user)) }
+        .to change { edition.access_limit }
+        .to(nil)
+    end
+
+    it "can update last edited" do
+      edition = create(:edition, :access_limited)
+      user = create(:user)
+
+      travel_to(Time.current) do
+        expect { edition.remove_access_limit(user: user) }
+          .to change { edition.last_edited_by }.to(user)
+          .and change { edition.last_edited_at }.to(Time.current)
+      end
+    end
+
+    it "can not update last edited" do
+      edition = create(:edition, :access_limited)
+      user = create(:user)
+
+      travel_to(Time.current) do
+        edition.remove_access_limit(user: user, update_last_edited: false)
+
+        expect(edition.last_edited_by).not_to eq(user)
+        expect(edition.last_edited_at).not_to eq(Time.current)
+      end
+    end
+  end
 end
