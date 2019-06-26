@@ -10,10 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_17_142340) do
+ActiveRecord::Schema.define(version: 2019_06_26_155821) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "access_limits", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "created_by_id"
+    t.bigint "edition_id", null: false
+    t.bigint "revision_at_creation_id", null: false
+    t.string "limit_type", null: false
+    t.boolean "active", default: true, null: false
+    t.index ["edition_id", "active"], name: "index_access_limits_on_edition_id_and_active", unique: true, where: "(active = true)"
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -318,6 +329,9 @@ ActiveRecord::Schema.define(version: 2019_06_17_142340) do
     t.datetime "withdrawn_at", null: false
   end
 
+  add_foreign_key "access_limits", "editions", on_delete: :restrict
+  add_foreign_key "access_limits", "revisions", column: "revision_at_creation_id", on_delete: :restrict
+  add_foreign_key "access_limits", "users", column: "created_by_id", on_delete: :restrict
   add_foreign_key "content_revisions", "users", column: "created_by_id", on_delete: :restrict
   add_foreign_key "documents", "users", column: "created_by_id", on_delete: :restrict
   add_foreign_key "editions", "documents", on_delete: :restrict

@@ -46,6 +46,8 @@ class Edition < ApplicationRecord
 
   has_many :internal_notes
 
+  has_one :access_limit, -> { where(active: true) }, inverse_of: :edition
+
   delegate :content_id, :locale, :document_type, :topics, :document_topics, to: :document
 
   # delegate each state enum method
