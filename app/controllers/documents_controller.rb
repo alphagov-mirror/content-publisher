@@ -2,6 +2,7 @@
 
 class DocumentsController < ApplicationController
   def index
+    Rails.logger.warn("testing logging")
     if filter_params[:filters].empty? && current_user.organisation_content_id
       redirect_to documents_path(organisation: current_user.organisation_content_id)
       return
