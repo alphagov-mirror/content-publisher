@@ -1,3 +1,16 @@
+GIT
+  remote: https://github.com/alphagov/gds-api-adapters
+  revision: e9bedcee95a4586af671ef69e2ab2575c92805d5
+  branch: add-whitehall-endpoint
+  specs:
+    gds-api-adapters (59.5.1)
+      addressable
+      link_header
+      null_logger
+      plek (>= 1.9.0)
+      rack-cache
+      rest-client (~> 2.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -101,13 +114,6 @@ GEM
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
     ffi (1.11.1)
-    gds-api-adapters (59.5.1)
-      addressable
-      link_header
-      null_logger
-      plek (>= 1.9.0)
-      rack-cache
-      rest-client (~> 2.0)
     gds-sso (14.0.0)
       multi_json (~> 1.0)
       oauth2 (~> 1.0)
@@ -454,7 +460,7 @@ DEPENDENCIES
   byebug (~> 11)
   climate_control
   factory_bot_rails (~> 5)
-  gds-api-adapters (~> 59)
+  gds-api-adapters!
   gds-sso (~> 14)
   govspeak (~> 6.2)
   govuk-lint (~> 3)
