@@ -35,6 +35,7 @@ RSpec.configure do |config|
   config.include GdsApi::TestHelpers::AssetManager
   config.include GovukSchemas::RSpecMatchers
   config.include AuthenticationHelper, type: :feature
+  config.include PopulateBulkDataCacheHelper
 
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
