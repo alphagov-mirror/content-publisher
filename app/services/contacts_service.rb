@@ -60,6 +60,7 @@ private
     def fetch_contacts
       BulkDataCache.fetch(CACHE_KEY)
     rescue BulkDataCache::NoEntryError
+      UpdateContactsJob.perform_later
       raise LocalDataUnavailableError
     end
 

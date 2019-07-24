@@ -8,3 +8,8 @@ development:
 :queues:
   - default
   - mailers
+:schedule:
+  update_contacts:
+    interval: ['15m', first_in: '0s']
+    class: UpdateContactsJob
+
