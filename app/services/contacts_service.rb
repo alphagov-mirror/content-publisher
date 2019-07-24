@@ -1,16 +1,9 @@
 # frozen_string_literal: true
 
 class ContactsService
-  CACHE_OPTIONS = { expires_in: 15.minutes, race_condition_ttl: 30.seconds }.freeze
-  EDITION_PARAMS = {
-    document_types: %w[contact].freeze,
-    fields: %w[content_id locale title description details links].freeze,
-    states: %w[published].freeze,
-    # This will need changing when this app supports more locales
-    locale: "en",
-    order: "id",
-    per_page: 1000,
-  }.freeze
+  def initialize
+    @repository = Repository.new
+  end
 
   def by_content_id(content_id)
     all_contacts.find { |contact| contact["content_id"] == content_id }
@@ -22,17 +15,10 @@ class ContactsService
 
 private
 
-  def all_contacts
-    @all_contacts ||= Rails.cache.fetch("all_contacts", CACHE_OPTIONS) do
-      load_all_contacts
-    end
-  end
+  attr_reader :repository
 
-  def load_all_contacts
-    GdsApi
-      .publishing_api_v2
-      .get_paged_editions(EDITION_PARAMS)
-      .inject([]) { |memo, page| memo + page["results"] }
+  def all_contacts
+    @all_contacts ||= repository.fetch_contacts
   end
 
   def organisation_select_options
@@ -53,6 +39,38 @@ private
         "content_id" => content_id,
         "contacts" => contacts_by_org.fetch(content_id, []),
       }
+    end
+  end
+
+  class LocalDataUnavailableError < RuntimeError; end
+  class RemoteDataUnavailableError < RuntimeError; end
+
+  class Repository
+    CACHE_KEY = "contacts-v1"
+    EDITION_PARAMS = {
+      document_types: %w[contact].freeze,
+      fields: %w[content_id locale title description details links].freeze,
+      states: %w[published].freeze,
+      # This will need changing when this app supports more locales
+      locale: "en",
+      order: "id",
+      per_page: 1000,
+    }.freeze
+
+    def fetch_contacts
+      BulkDataCache.fetch(CACHE_KEY)
+    rescue BulkDataCache::NoEntryError
+      raise LocalDataUnavailableError
+    end
+
+    def populate_cache
+      contacts = GdsApi.publishing_api_v2
+                       .get_paged_editions(EDITION_PARAMS)
+                       .inject([]) { |memo, page| memo + page["results"] }
+
+      BulkDataCache.write(CACHE_KEY, contacts)
+    rescue GdsApi::HTTPIntermittentServerError
+      raise RemoteDataUnavailableError
     end
   end
 end
