@@ -35,6 +35,15 @@ module ContentPublisher
     config.time_zone = "London"
 
     config.exceptions_app = self.routes
+    config.bulk_data_cache_adapter = :redis
+
+    initializer "rack cache for bulk data" do
+      require "bulk_data_cache"
+      cache = BulkDataCache.adapter.cache
+      if cache.respond_to?(:middleware)
+        config.middleware.insert_before(::Rack::Runtime, cache.middleware)
+      end
+    end
 
     unless Rails.application.secrets.jwt_auth_secret
       raise "JWT auth secret is not configured. See config/secrets.yml"

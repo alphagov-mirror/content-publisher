@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require "bulk_data_cache"
+
 class DocumentsController < ApplicationController
   def index
+    BulkDataCache.fetch(:test)
+    BulkDataCache.fetch(:test)
     if filter_params[:filters].empty? && current_user.organisation_content_id
       redirect_to documents_path(organisation: current_user.organisation_content_id)
       return
