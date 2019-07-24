@@ -50,6 +50,7 @@ RSpec.configure do |config|
   config.before :each do
     Sidekiq::Worker.clear_all
     ActionMailer::Base.deliveries.clear
+    BulkDataCache.clear
   end
 
   config.after :each, type: :feature do
