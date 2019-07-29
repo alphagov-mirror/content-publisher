@@ -36,7 +36,8 @@ class ApplicationController < ActionController::Base
     document_id = request.path_parameters[:document]
     return if document_id.blank?
 
-    access_limit = Edition.find_current(document: document_id)
+    access_limit = Edition.includes(:access_limit)
+      .current(document: document_id)
       .access_limit
 
     return unless access_limit

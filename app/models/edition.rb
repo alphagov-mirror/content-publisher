@@ -75,7 +75,9 @@ class Edition < ApplicationRecord
            :backdated_to,
            to: :revision
 
-  scope :find_current, ->(id: nil, document: nil) do
+  scope :find_current, ->(args) { tree.current(args) }
+
+  scope :current, ->(id: nil, document: nil) do
     find_by = {}.tap do |criteria|
       criteria[:id] = id if id
 
@@ -85,11 +87,15 @@ class Edition < ApplicationRecord
       end
     end
 
-    join_tables = %i[document revision status]
-    where(current: true)
-      .joins(join_tables)
-      .includes(join_tables)
+    joins(:document)
+      .includes(:document)
+      .where(current: true)
       .find_by!(find_by)
+  end
+
+  scope :tree, -> do
+    join_tables = %i[revision status]
+    joins(join_tables).includes(join_tables)
   end
 
   def self.create_initial(document, user = nil, tags = {})
