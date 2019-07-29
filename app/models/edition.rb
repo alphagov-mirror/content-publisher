@@ -75,9 +75,7 @@ class Edition < ApplicationRecord
            :backdated_to,
            to: :revision
 
-  scope :find_current, ->(args) { tree.current(args) }
-
-  scope :current, ->(id: nil, document: nil) do
+  scope :find_current, ->(id: nil, document: nil) do
     find_by = {}.tap do |criteria|
       criteria[:id] = id if id
 
@@ -87,15 +85,22 @@ class Edition < ApplicationRecord
       end
     end
 
-    joins(:document)
-      .includes(:document)
-      .where(current: true)
-      .find_by!(find_by)
+    join_tables = %i[document revision status]
+    where(current: true)
+      .joins(join_tables)
+      .includes(join_tables)
+      .find_by(find_by)
   end
 
-  scope :tree, -> do
-    join_tables = %i[revision status]
-    joins(join_tables).includes(join_tables)
+  scope :can_access, ->(user) do
+    initial_scope = joins(revision: :tags_revision).left_joins(:access_limit)
+
+    primary_orgs = TagsRevision.primary_organisation(user.organisation_content_id)
+    tagged_orgs = TagsRevision.tagged_organisations(user.organisation_content_id)
+
+    initial_scope.where(editions: { access_limit: nil })
+      .or(initial_scope.merge(AccessLimit.primary_organisation).merge(primary_orgs))
+      .or(initial_scope.merge(AccessLimit.tagged_organisations).merge(tagged_orgs))
   end
 
   def self.create_initial(document, user = nil, tags = {})

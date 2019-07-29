@@ -33,18 +33,12 @@ class ApplicationController < ActionController::Base
   end
 
   def check_user_access
-    document_id = request.path_parameters[:document]
-    return if document_id.blank?
+    document_param = request.path_parameters[:document]
+    return if document_param.blank?
 
-    access_limit = Edition.includes(:access_limit)
-      .current(document: document_id)
-      .access_limit
-
-    return unless access_limit
-      &.organisation_ids
-      &.exclude?(current_user.organisation_content_id)
-
-    render "documents/forbidden", status: :forbidden,
-      assigns: { edition: access_limit.edition }
+    unless Document.access_current_edition?(document_param, current_user)
+      render "documents/forbidden", status: :forbidden,
+        assigns: { edition: access_limit.edition }
+    end
   end
 end

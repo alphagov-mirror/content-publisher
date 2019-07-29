@@ -29,15 +29,25 @@ class Document < ApplicationRecord
 
   delegate :topics, to: :document_topics
 
-  scope :with_current_edition, -> do
-    join_tables = { current_edition: %i[revision status] }
-    joins(join_tables).includes(join_tables)
-  end
-
   scope :using_base_path, ->(base_path) do
     left_outer_joins(current_edition: { revision: :content_revision },
                      live_edition: { revision: :content_revision })
       .where("content_revisions.base_path": base_path)
+  end
+
+  def self.access_current_edition?(param, user)
+    content_id, locale = param.split(":")
+
+    document_criteria = { content_id: content_id, locale: locale }
+
+    unless Document.joins(:current_edition).exists?(document_criteria)
+      raise ActiveRecord::RecordNotFound,
+            "Cannot find current edition for content_id=#{content_id} locale=#{locale}"
+    end
+
+    Edition.can_access(user)
+           .joins(:document)
+           .exists?(current: true, documents: document_criteria)
   end
 
   def self.find_by_param(content_id_and_locale)
