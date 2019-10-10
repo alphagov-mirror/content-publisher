@@ -485,6 +485,7 @@ DEPENDENCIES
   rinku (~> 2)
   rspec-rails (~> 3)
   rubyzip (~> 1)
+  sass
   sidekiq-scheduler (~> 3)
   simplecov (~> 0.17)
   uglifier (~> 4)
