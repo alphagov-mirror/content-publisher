@@ -3,18 +3,19 @@
 class DocumentTopics
   include ActiveModel::Model
 
-  attr_accessor :document, :version, :topics, :index
+  attr_accessor :document, :version, :topics, :index, :surplus_topics
 
   def self.find_by_document(document, index)
     publishing_api = GdsApi.publishing_api_v2
     links = publishing_api.get_links(document.content_id)
-    topic_content_ids = links.dig("links", "taxons").to_a
+    topic_content_ids = links.dig("links", "taxons").to_a + ['d1de7e0e-9c04-4c2d-9cc4-f5f0ff04eb50', '8c15b806-ccde-417c-bb40-ce60b711a0b8']
 
     new(
       index: index,
       document: document,
       version: links["version"],
-      topics: topic_content_ids.map { |topic_content_id| Topic.find(topic_content_id, index) },
+      topics: topic_list(topic_content_ids, index),
+      surplus_topics: topic_content_ids - topic_list(topic_content_ids, index)
     )
   rescue GdsApi::HTTPNotFound
     new(
@@ -40,6 +41,10 @@ class DocumentTopics
   end
 
 private
+
+  def self.topic_list(topic_content_ids, index)
+    topic_content_ids.map { |topic_content_id| Topic.find(topic_content_id, index) unless nil }.compact
+  end
 
   def leaf_topic_content_ids(topics)
     superfluous_topics = topics.map(&:ancestors).flatten
