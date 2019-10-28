@@ -25,14 +25,15 @@ class DocumentTopics
   end
 
   def patch(updated_topic_content_ids, version)
-    valid_user_topics = updated_topic_content_ids.map { |topic_content_id| Topic.find(topic_content_id, index) }.compact
-    self.version = version
+    new_topic_content_ids = valid_topic_content_ids(updated_topic_content_ids) + unknown_taxon_content_ids
+
+    update_self(new_topic_content_ids, version)
 
     GdsApi.publishing_api_v2.patch_links(
       document.content_id,
       links: {
-        taxons: leaf_topic_content_ids(valid_user_topics) + unknown_taxon_content_ids,
-        topics: legacy_topic_content_ids(valid_user_topics),
+        taxons: leaf_topic_content_ids + unknown_taxon_content_ids,
+        topics: legacy_topic_content_ids,
       },
       previous_version: version,
     )
@@ -44,17 +45,27 @@ class DocumentTopics
 
 private
 
-  def leaf_topic_content_ids(topics)
+  def leaf_topic_content_ids
     superfluous_topics = topics.map(&:ancestors).flatten
     (topics - superfluous_topics).map(&:content_id)
   end
 
-  def legacy_topic_content_ids(topics)
+  def legacy_topic_content_ids
     breadcrumbs = topics.map(&:breadcrumb).flatten
     breadcrumbs.map(&:legacy_topic_content_ids).flatten.uniq
   end
 
   def unknown_taxon_content_ids
-    topic_content_ids.reject { |topic_content_id| index.lookup(topic_content_id) }
+    @unknown_taxon_content_ids ||= topic_content_ids.reject { |topic_content_id| index.lookup(topic_content_id) }
+  end
+
+  def valid_topic_content_ids(topic_content_ids)
+    topic_content_ids.select { |topic_content_id| index.lookup(topic_content_id) }
+  end
+
+  def update_self(topic_content_ids, version)
+    self.topic_content_ids = topic_content_ids
+    self.version = version
+    @topics = nil
   end
 end
