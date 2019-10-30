@@ -143,9 +143,14 @@ module Tasks
 
       primary_publishing_organisation = primary_publishing_organisations.first
 
+      supporting_organisations = organisations.reject do |organisation|
+        organisation["lead"]
+      end
+
       TagsRevision.new(
         tags: {
           "primary_publishing_organisation" => [primary_publishing_organisation["content_id"]],
+          "organisations" => supporting_organisations.map { |organisation| organisation["content_id"] },
         },
       )
     end
