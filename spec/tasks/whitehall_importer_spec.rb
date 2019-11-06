@@ -111,6 +111,15 @@ RSpec.describe Tasks::WhitehallImporter do
     expect(Edition.last).not_to be_live
   end
 
+  it "sets the correct states when Whitehall document state is withdrawn" do
+    import_data["editions"][0]["state"] = "withdrawn"
+    importer = Tasks::WhitehallImporter.new(123, import_data)
+    importer.import
+
+    expect(Edition.last.status).to be_withdrawn
+    expect(Edition.last).not_to be_live
+  end
+
   it "raises AbortImportError when edition has an unsupported state" do
     import_data["editions"][0]["state"] = "not_supported"
     importer = Tasks::WhitehallImporter.new(123, import_data)
