@@ -39,7 +39,7 @@ private
 
   def create_document
     context.document = Document.create_initial(
-      document_type_id: params[:document_type], tags: default_tags, user: user,
+      tags: default_tags, user: user,
     )
   end
 
