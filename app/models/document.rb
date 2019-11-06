@@ -80,10 +80,6 @@ class Document < ApplicationRecord
     content_id + ":" + locale
   end
 
-  def document_type
-    DocumentType.find(document_type_id)
-  end
-
   def document_topics
     @document_topics ||= DocumentTopics.find_by_document(self, TopicIndex.new)
   end

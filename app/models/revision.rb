@@ -51,6 +51,7 @@ class Revision < ApplicationRecord
 
   delegate :update_type,
            :change_note,
+           :document_type,
            :major?,
            :minor?,
            :proposed_publish_time,

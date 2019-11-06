@@ -29,7 +29,7 @@ RSpec.feature "Create a press release", format: true do
     fill_in "revision[summary]", with: "A great summary"
 
     document = Document.first
-    base_path = document.document_type.path_prefix + "/a-great-title"
+    base_path = document.editions.last.document_type.path_prefix + "/a-great-title"
     stub_publishing_api_has_lookups(base_path => document.content_id)
 
     click_on "Save"

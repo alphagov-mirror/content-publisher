@@ -13,7 +13,7 @@ RSpec.describe PathGeneratorService do
     end
 
     it "raises an error when many variations of that path are in use" do
-      prefix = document.document_type.path_prefix
+      prefix = document.editions.last.document_type.path_prefix
       existing_paths = ["#{prefix}/a-title", "#{prefix}/a-title-1", "#{prefix}/a-title-2"]
       existing_paths.each { |path| create(:edition, base_path: path) }
 
