@@ -5,7 +5,7 @@ RSpec.describe PathGeneratorService do
     let(:document) { create(:document, :with_current_edition) }
 
     it "generates a base path which is unique to our database" do
-      new_document = build(:document)
+      new_document = build(:document, :with_current_edition)
       stub_publishing_api_has_lookups("#{document.current_edition.base_path}": nil)
 
       expect(PathGeneratorService.call(new_document, document.current_edition.title))
