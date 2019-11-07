@@ -113,6 +113,19 @@ RSpec.describe Tasks::WhitehallImporter do
 
   it "sets the correct states when Whitehall document state is withdrawn" do
     import_data["editions"][0]["state"] = "withdrawn"
+    import_data["editions"][0]["revision_history"] += [
+      {
+        "event" => "update",
+        "state" => "published",
+        "whodunnit" => 2,
+      },
+      {
+        "event" => "update",
+        "state" => "withdrawn",
+        "whodunnit" => 3,
+      },
+    ]
+
     importer = Tasks::WhitehallImporter.new(123, import_data)
     importer.import
 
@@ -125,6 +138,19 @@ RSpec.describe Tasks::WhitehallImporter do
   it "sets the correct states when Whitehall document state is withdrawn and was force_published" do
     import_data["editions"][0]["state"] = "withdrawn"
     import_data["editions"][0]["force_published"] = true
+
+    import_data["editions"][0]["revision_history"] += [
+      {
+        "event" => "update",
+        "state" => "published",
+        "whodunnit" => 2,
+      },
+      {
+        "event" => "update",
+        "state" => "withdrawn",
+        "whodunnit" => 3,
+      },
+    ]
 
     importer = Tasks::WhitehallImporter.new(123, import_data)
     importer.import
@@ -140,6 +166,54 @@ RSpec.describe Tasks::WhitehallImporter do
     importer = Tasks::WhitehallImporter.new(123, import_data)
 
     expect { importer.import }.to raise_error(Tasks::AbortImportError)
+  end
+
+  it "sets the user that created the document state" do
+    importer = Tasks::WhitehallImporter.new(123, import_data)
+    importer.import
+
+    expect(Edition.last.status.created_by_id).to eq(User.last.id)
+  end
+
+  it "sets the user that created the additional document state" do
+    import_data["editions"][0]["state"] = "withdrawn"
+    import_data["editions"][0]["revision_history"] += [
+      {
+        "event" => "update",
+        "state" => "published",
+        "whodunnit" => 2,
+      },
+      {
+        "event" => "update",
+        "state" => "withdrawn",
+        "whodunnit" => 3,
+      },
+    ]
+
+    import_data["users"] += [
+      {
+        "id" => 2,
+        "name" => "Another Person",
+        "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
+        "email" => "another-publisher@department.gov.uk",
+        "organisation_slug" => "a-government-department",
+        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+      },
+      {
+        "id" => 3,
+        "name" => "An extra Person",
+        "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
+        "email" => "an-extra-publisher@department.gov.uk",
+        "organisation_slug" => "a-government-department",
+        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+      },
+    ]
+
+    importer = Tasks::WhitehallImporter.new(123, import_data)
+    importer.import
+
+    expect(Status.first.created_by_id).to eq(User.second_to_last.id)
+    expect(Edition.last.status.created_by_id).to eq(User.last.id)
   end
 
   it "raises AbortImportError when edition has an unsupported locale" do

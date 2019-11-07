@@ -138,9 +138,16 @@ module Tasks
     end
 
     def initial_status(whitehall_edition, revision)
+      author = if needs_additional_status?(whitehall_edition["state"])
+                 whitehall_edition["revision_history"].second_to_last
+               else
+                 whitehall_edition["revision_history"].last
+               end
+
       Status.new(
         state: state(whitehall_edition),
         revision_at_creation: revision,
+        created_by_id: user_ids[author["whodunnit"]],
       )
     end
 
@@ -149,10 +156,13 @@ module Tasks
     end
 
     def additional_status(whitehall_edition, edition)
+      author = whitehall_edition["revision_history"].last
+
       edition.status = Status.new(
         edition_id: edition.id,
         state: whitehall_edition["state"],
         revision_at_creation: edition.revision,
+        created_by_id: user_ids[author["whodunnit"]],
       )
 
       edition.save!
