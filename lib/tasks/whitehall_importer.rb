@@ -120,7 +120,7 @@ module Tasks
         created_at: whitehall_edition["created_at"],
       )
 
-      Edition.create!(
+      edition = Edition.create!(
         document: document,
         number: edition_number,
         revision_synced: true,
@@ -133,6 +133,8 @@ module Tasks
         created_by_id: user_ids[first_author["whodunnit"]],
         last_edited_by_id: user_ids[last_author["whodunnit"]],
       )
+
+      additional_status(whitehall_edition, edition) if needs_additional_status?(whitehall_edition["state"])
     end
 
     def initial_status(whitehall_edition, revision)
@@ -142,13 +144,26 @@ module Tasks
       )
     end
 
+    def needs_additional_status?(state)
+      state == "withdrawn"
+    end
+
+    def additional_status(whitehall_edition, edition)
+      edition.status = Status.new(
+        edition_id: edition.id,
+        state: whitehall_edition["state"],
+        revision_at_creation: edition.revision,
+      )
+
+      edition.save!
+    end
+
     def state(whitehall_edition)
       case whitehall_edition["state"]
       when "draft" then "draft"
       when "superseded" then "superseded"
-      when "published"
+      when "published", "withdrawn"
         whitehall_edition["force_published"] ? "published_but_needs_2i" : "published"
-      when "withdrawn" then "withdrawn"
       else
         "submitted_for_review"
       end

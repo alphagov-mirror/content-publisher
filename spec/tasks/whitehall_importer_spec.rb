@@ -116,6 +116,21 @@ RSpec.describe Tasks::WhitehallImporter do
     importer = Tasks::WhitehallImporter.new(123, import_data)
     importer.import
 
+    expect(Status.count).to eq(2)
+    expect(Status.first.state).to eq("published")
+    expect(Edition.last.status).to be_withdrawn
+    expect(Edition.last).not_to be_live
+  end
+
+  it "sets the correct states when Whitehall document state is withdrawn and was force_published" do
+    import_data["editions"][0]["state"] = "withdrawn"
+    import_data["editions"][0]["force_published"] = true
+
+    importer = Tasks::WhitehallImporter.new(123, import_data)
+    importer.import
+
+    expect(Status.count).to eq(2)
+    expect(Status.first.state).to eq("published_but_needs_2i")
     expect(Edition.last.status).to be_withdrawn
     expect(Edition.last).not_to be_live
   end
