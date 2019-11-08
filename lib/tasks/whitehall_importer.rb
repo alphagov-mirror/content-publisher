@@ -139,7 +139,7 @@ module Tasks
 
     def initial_status(whitehall_edition, revision)
       author = if needs_additional_status?(whitehall_edition["state"])
-                 whitehall_edition["revision_history"].second_to_last
+                 whitehall_edition["revision_history"].select { |h| h["state"] == "published" }.first
                else
                  whitehall_edition["revision_history"].last
                end
