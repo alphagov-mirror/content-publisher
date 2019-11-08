@@ -162,7 +162,6 @@ module Tasks
       raise AbortImportError if whitehall_edition["state"] == "withdrawn" && !whitehall_edition["unpublishing"]
 
       edition.status = Status.new(
-        edition_id: edition.id,
         state: whitehall_edition["state"],
         revision_at_creation: edition.revision,
         created_by_id: user_ids[author["whodunnit"]],
