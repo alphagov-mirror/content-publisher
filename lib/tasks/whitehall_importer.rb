@@ -134,11 +134,11 @@ module Tasks
         last_edited_by_id: user_ids[last_author["whodunnit"]],
       )
 
-      additional_status(whitehall_edition, edition) if needs_additional_status?(whitehall_edition["state"])
+      additional_status(whitehall_edition, edition) if set_published_state_first?(whitehall_edition["state"])
     end
 
     def initial_status(whitehall_edition, revision)
-      author = if needs_additional_status?(whitehall_edition["state"])
+      author = if set_published_state_first?(whitehall_edition["state"])
                  whitehall_edition["revision_history"].select { |h| h["state"] == "published" }.first
                else
                  whitehall_edition["revision_history"].last
@@ -154,7 +154,7 @@ module Tasks
       )
     end
 
-    def needs_additional_status?(state)
+    def set_published_state_first?(state)
       state == "withdrawn"
     end
 
