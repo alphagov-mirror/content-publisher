@@ -268,11 +268,10 @@ RSpec.describe Tasks::WhitehallImporter do
       importer = Tasks::WhitehallImporter.new(123, import_data_for_withdrawn_edition)
       importer.import
 
-      initial_imported_created_at = import_data_for_withdrawn_edition["editions"][0]["revision_history"][1]["created_at"]
-      additional_imported_created_at = import_data_for_withdrawn_edition["editions"][0]["revision_history"][2]["created_at"]
+      import_revision_history = import_data_for_withdrawn_edition["editions"][0]["revision_history"]
 
-      expect(Status.first.created_at).to eq(initial_imported_created_at)
-      expect(Edition.last.status.created_at).to eq(additional_imported_created_at)
+      expect(Status.first.created_at).to eq(import_revision_history[1]["created_at"])
+      expect(Edition.last.status.created_at).to eq(import_revision_history[2]["created_at"])
     end
 
     it "raises AbortImportError when document is withdrawn but has no unpublishing details" do
@@ -286,9 +285,12 @@ RSpec.describe Tasks::WhitehallImporter do
       importer = Tasks::WhitehallImporter.new(123, import_data_for_withdrawn_edition)
       importer.import
 
-      expect(Edition.last.status.details.published_status_id).to eq(Status.first.id)
-      expect(Edition.last.status.details.public_explanation).to eq(import_data_for_withdrawn_edition["editions"][0]["unpublishing"]["explanation"])
-      expect(Edition.last.status.details.withdrawn_at).to eq(import_data_for_withdrawn_edition["editions"][0]["unpublishing"]["created_at"])
+      import_unpublishing_data = import_data_for_withdrawn_edition["editions"][0]["unpublishing"]
+      details = Edition.last.status.details
+
+      expect(details.published_status_id).to eq(Status.first.id)
+      expect(details.public_explanation).to eq(import_unpublishing_data["explanation"])
+      expect(details.withdrawn_at).to eq(import_unpublishing_data["created_at"])
     end
   end
 
