@@ -126,6 +126,16 @@ RSpec.describe Tasks::WhitehallImporter do
       },
     ]
 
+    import_data["editions"][0]["unpublishing"] = {
+      "id" => 1,
+      "explanation" => "",
+      "alternative_url" => "",
+      "created_at" => "2019-11-07T16:12:52.000+00:00",
+      "updated_at" => "2019-11-07T16:12:52.000+00:00",
+      "redirect" => false,
+      "unpublishing_reason" => "Published in error",
+    }
+
     importer = Tasks::WhitehallImporter.new(123, import_data)
     importer.import
 
@@ -151,6 +161,16 @@ RSpec.describe Tasks::WhitehallImporter do
         "whodunnit" => 3,
       },
     ]
+
+    import_data["editions"][0]["unpublishing"] = {
+      "id" => 1,
+      "explanation" => "",
+      "alternative_url" => "",
+      "created_at" => "2019-11-07T16:12:52.000+00:00",
+      "updated_at" => "2019-11-07T16:12:52.000+00:00",
+      "redirect" => false,
+      "unpublishing_reason" => "Published in error",
+    }
 
     importer = Tasks::WhitehallImporter.new(123, import_data)
     importer.import
@@ -208,6 +228,16 @@ RSpec.describe Tasks::WhitehallImporter do
         "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
       },
     ]
+
+    import_data["editions"][0]["unpublishing"] = {
+      "id" => 1,
+      "explanation" => "",
+      "alternative_url" => "",
+      "created_at" => "2019-11-07T16:12:52.000+00:00",
+      "updated_at" => "2019-11-07T16:12:52.000+00:00",
+      "redirect" => false,
+      "unpublishing_reason" => "Published in error",
+    }
 
     importer = Tasks::WhitehallImporter.new(123, import_data)
     importer.import
@@ -269,6 +299,16 @@ RSpec.describe Tasks::WhitehallImporter do
       },
     ]
 
+    import_data["editions"][0]["unpublishing"] = {
+      "id" => 1,
+      "explanation" => "",
+      "alternative_url" => "",
+      "created_at" => "2019-11-07T16:12:52.000+00:00",
+      "updated_at" => "2019-11-07T16:12:52.000+00:00",
+      "redirect" => false,
+      "unpublishing_reason" => "Published in error",
+    }
+
     importer.import
 
     initial_imported_created_at = import_data["editions"][0]["revision_history"][1]["created_at"]
@@ -276,6 +316,52 @@ RSpec.describe Tasks::WhitehallImporter do
 
     expect(Status.first.created_at).to be_within(1.second).of initial_imported_created_at
     expect(Edition.last.status.created_at).to be_within(1.second).of additional_imported_created_at
+  end
+
+  it "raises AbortImportError when document is withdrawn but has no unpublishing details" do
+    importer = Tasks::WhitehallImporter.new(123, import_data)
+    import_data["editions"][0]["state"] = "withdrawn"
+    import_data["editions"][0]["revision_history"] = [
+      {
+        "event" => "create",
+        "state" => "draft",
+        "whodunnit" => 1,
+        "created_at" => 5.days.ago,
+      },
+      {
+        "event" => "update",
+        "state" => "published",
+        "whodunnit" => 2,
+        "created_at" => 4.days.ago,
+      },
+      {
+        "event" => "update",
+        "state" => "withdrawn",
+        "whodunnit" => 3,
+        "created_at" => 3.days.ago,
+      },
+    ]
+
+    import_data["users"] += [
+      {
+        "id" => 2,
+        "name" => "Another Person",
+        "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
+        "email" => "another-publisher@department.gov.uk",
+        "organisation_slug" => "a-government-department",
+        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+      },
+      {
+        "id" => 3,
+        "name" => "An extra Person",
+        "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
+        "email" => "an-extra-publisher@department.gov.uk",
+        "organisation_slug" => "a-government-department",
+        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+      },
+    ]
+
+    expect { importer.import }.to raise_error(Tasks::AbortImportError)
   end
 
   it "raises AbortImportError when edition has an unsupported locale" do

@@ -159,6 +159,8 @@ module Tasks
     def additional_status(whitehall_edition, edition)
       author = whitehall_edition["revision_history"].last
 
+      raise AbortImportError if whitehall_edition["state"] == "withdrawn" && !whitehall_edition["unpublishing"]
+
       edition.status = Status.new(
         edition_id: edition.id,
         state: whitehall_edition["state"],
