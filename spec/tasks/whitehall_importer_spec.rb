@@ -111,76 +111,6 @@ RSpec.describe Tasks::WhitehallImporter do
     expect(Edition.last).not_to be_live
   end
 
-  it "sets the correct states when Whitehall document state is withdrawn" do
-    import_data["editions"][0]["state"] = "withdrawn"
-    import_data["editions"][0]["revision_history"] += [
-      {
-        "event" => "update",
-        "state" => "published",
-        "whodunnit" => 2,
-      },
-      {
-        "event" => "update",
-        "state" => "withdrawn",
-        "whodunnit" => 3,
-      },
-    ]
-
-    import_data["editions"][0]["unpublishing"] = {
-      "id" => 1,
-      "explanation" => "",
-      "alternative_url" => "",
-      "created_at" => "2019-11-07T16:12:52.000+00:00",
-      "updated_at" => "2019-11-07T16:12:52.000+00:00",
-      "redirect" => false,
-      "unpublishing_reason" => "Published in error",
-    }
-
-    importer = Tasks::WhitehallImporter.new(123, import_data)
-    importer.import
-
-    expect(Status.count).to eq(2)
-    expect(Status.first.state).to eq("published")
-    expect(Edition.last.status).to be_withdrawn
-    expect(Edition.last).not_to be_live
-  end
-
-  it "sets the correct states when Whitehall document state is withdrawn and was force_published" do
-    import_data["editions"][0]["state"] = "withdrawn"
-    import_data["editions"][0]["force_published"] = true
-
-    import_data["editions"][0]["revision_history"] += [
-      {
-        "event" => "update",
-        "state" => "published",
-        "whodunnit" => 2,
-      },
-      {
-        "event" => "update",
-        "state" => "withdrawn",
-        "whodunnit" => 3,
-      },
-    ]
-
-    import_data["editions"][0]["unpublishing"] = {
-      "id" => 1,
-      "explanation" => "",
-      "alternative_url" => "",
-      "created_at" => "2019-11-07T16:12:52.000+00:00",
-      "updated_at" => "2019-11-07T16:12:52.000+00:00",
-      "redirect" => false,
-      "unpublishing_reason" => "Published in error",
-    }
-
-    importer = Tasks::WhitehallImporter.new(123, import_data)
-    importer.import
-
-    expect(Status.count).to eq(2)
-    expect(Status.first.state).to eq("published_but_needs_2i")
-    expect(Edition.last.status).to be_withdrawn
-    expect(Edition.last).not_to be_live
-  end
-
   it "raises AbortImportError when edition has an unsupported state" do
     import_data["editions"][0]["state"] = "not_supported"
     importer = Tasks::WhitehallImporter.new(123, import_data)
@@ -195,57 +125,6 @@ RSpec.describe Tasks::WhitehallImporter do
     expect(Edition.last.status.created_by_id).to eq(User.last.id)
   end
 
-  it "sets the user that created the additional document state" do
-    import_data["editions"][0]["state"] = "withdrawn"
-    import_data["editions"][0]["revision_history"] += [
-      {
-        "event" => "update",
-        "state" => "published",
-        "whodunnit" => 2,
-      },
-      {
-        "event" => "update",
-        "state" => "withdrawn",
-        "whodunnit" => 3,
-      },
-    ]
-
-    import_data["users"] += [
-      {
-        "id" => 2,
-        "name" => "Another Person",
-        "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
-        "email" => "another-publisher@department.gov.uk",
-        "organisation_slug" => "a-government-department",
-        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
-      },
-      {
-        "id" => 3,
-        "name" => "An extra Person",
-        "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
-        "email" => "an-extra-publisher@department.gov.uk",
-        "organisation_slug" => "a-government-department",
-        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
-      },
-    ]
-
-    import_data["editions"][0]["unpublishing"] = {
-      "id" => 1,
-      "explanation" => "",
-      "alternative_url" => "",
-      "created_at" => "2019-11-07T16:12:52.000+00:00",
-      "updated_at" => "2019-11-07T16:12:52.000+00:00",
-      "redirect" => false,
-      "unpublishing_reason" => "Published in error",
-    }
-
-    importer = Tasks::WhitehallImporter.new(123, import_data)
-    importer.import
-
-    expect(Status.first.created_by_id).to eq(User.second_to_last.id)
-    expect(Edition.last.status.created_by_id).to eq(User.last.id)
-  end
-
   it "sets the created_at datetime of the document state" do
     importer = Tasks::WhitehallImporter.new(123, import_data)
     import_data["editions"][0]["revision_history"][0].merge!("created_at" => 3.days.ago)
@@ -254,174 +133,6 @@ RSpec.describe Tasks::WhitehallImporter do
     imported_created_at = import_data["editions"][0]["revision_history"][0]["created_at"]
 
     expect(Edition.last.status.created_at).to be_within(1.second).of imported_created_at
-  end
-
-  it "sets the created_at datetime of the additional document state" do
-    importer = Tasks::WhitehallImporter.new(123, import_data)
-    import_data["editions"][0]["state"] = "withdrawn"
-    import_data["editions"][0]["revision_history"] = [
-      {
-        "event" => "create",
-        "state" => "draft",
-        "whodunnit" => 1,
-        "created_at" => 5.days.ago,
-      },
-      {
-        "event" => "update",
-        "state" => "published",
-        "whodunnit" => 2,
-        "created_at" => 4.days.ago,
-      },
-      {
-        "event" => "update",
-        "state" => "withdrawn",
-        "whodunnit" => 3,
-        "created_at" => 3.days.ago,
-      },
-    ]
-
-    import_data["users"] += [
-      {
-        "id" => 2,
-        "name" => "Another Person",
-        "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
-        "email" => "another-publisher@department.gov.uk",
-        "organisation_slug" => "a-government-department",
-        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
-      },
-      {
-        "id" => 3,
-        "name" => "An extra Person",
-        "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
-        "email" => "an-extra-publisher@department.gov.uk",
-        "organisation_slug" => "a-government-department",
-        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
-      },
-    ]
-
-    import_data["editions"][0]["unpublishing"] = {
-      "id" => 1,
-      "explanation" => "",
-      "alternative_url" => "",
-      "created_at" => "2019-11-07T16:12:52.000+00:00",
-      "updated_at" => "2019-11-07T16:12:52.000+00:00",
-      "redirect" => false,
-      "unpublishing_reason" => "Published in error",
-    }
-
-    importer.import
-
-    initial_imported_created_at = import_data["editions"][0]["revision_history"][1]["created_at"]
-    additional_imported_created_at = import_data["editions"][0]["revision_history"][2]["created_at"]
-
-    expect(Status.first.created_at).to be_within(1.second).of initial_imported_created_at
-    expect(Edition.last.status.created_at).to be_within(1.second).of additional_imported_created_at
-  end
-
-  it "raises AbortImportError when document is withdrawn but has no unpublishing details" do
-    importer = Tasks::WhitehallImporter.new(123, import_data)
-    import_data["editions"][0]["state"] = "withdrawn"
-    import_data["editions"][0]["revision_history"] = [
-      {
-        "event" => "create",
-        "state" => "draft",
-        "whodunnit" => 1,
-        "created_at" => 5.days.ago,
-      },
-      {
-        "event" => "update",
-        "state" => "published",
-        "whodunnit" => 2,
-        "created_at" => 4.days.ago,
-      },
-      {
-        "event" => "update",
-        "state" => "withdrawn",
-        "whodunnit" => 3,
-        "created_at" => 3.days.ago,
-      },
-    ]
-
-    import_data["users"] += [
-      {
-        "id" => 2,
-        "name" => "Another Person",
-        "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
-        "email" => "another-publisher@department.gov.uk",
-        "organisation_slug" => "a-government-department",
-        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
-      },
-      {
-        "id" => 3,
-        "name" => "An extra Person",
-        "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
-        "email" => "an-extra-publisher@department.gov.uk",
-        "organisation_slug" => "a-government-department",
-        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
-      },
-    ]
-
-    expect { importer.import }.to raise_error(Tasks::AbortImportError)
-  end
-
-  it "sets the Withdrawal details for a withdrawn document" do
-    importer = Tasks::WhitehallImporter.new(123, import_data)
-    import_data["editions"][0]["state"] = "withdrawn"
-    import_data["editions"][0]["revision_history"] = [
-      {
-        "event" => "create",
-        "state" => "draft",
-        "whodunnit" => 1,
-        "created_at" => 5.days.ago,
-      },
-      {
-        "event" => "update",
-        "state" => "published",
-        "whodunnit" => 2,
-        "created_at" => 4.days.ago,
-      },
-      {
-        "event" => "update",
-        "state" => "withdrawn",
-        "whodunnit" => 3,
-        "created_at" => 3.days.ago,
-      },
-    ]
-
-    import_data["users"] += [
-      {
-        "id" => 2,
-        "name" => "Another Person",
-        "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
-        "email" => "another-publisher@department.gov.uk",
-        "organisation_slug" => "a-government-department",
-        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
-      },
-      {
-        "id" => 3,
-        "name" => "An extra Person",
-        "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
-        "email" => "an-extra-publisher@department.gov.uk",
-        "organisation_slug" => "a-government-department",
-        "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
-      },
-    ]
-
-    import_data["editions"][0]["unpublishing"] = {
-      "id" => 1,
-      "explanation" => "User facing explanation",
-      "alternative_url" => "",
-      "created_at" => "2019-11-07T16:12:52.000+00:00",
-      "updated_at" => "2019-11-07T16:12:52.000+00:00",
-      "redirect" => false,
-      "unpublishing_reason" => "Published in error",
-    }
-
-    importer.import
-
-    expect(Edition.last.status.details.published_status_id).to eq(Status.first.id)
-    expect(Edition.last.status.details.public_explanation).to eq(import_data["editions"][0]["unpublishing"]["explanation"])
-    expect(Edition.last.status.details.withdrawn_at).to eq(import_data["editions"][0]["unpublishing"]["created_at"])
   end
 
   it "raises AbortImportError when edition has an unsupported locale" do
@@ -518,6 +229,299 @@ RSpec.describe Tasks::WhitehallImporter do
     edition = Edition.last
 
     expect(edition.tags["world_locations"].first).to eq(imported_world_locations["content_id"])
+  end
+
+  context "when an imported document has been withdrawn" do
+    let(:import_data) { whitehall_export_with_one_edition }
+
+    it "sets the correct states when Whitehall document state is withdrawn" do
+      import_data["editions"][0]["state"] = "withdrawn"
+      import_data["editions"][0]["revision_history"] += [
+        {
+          "event" => "update",
+          "state" => "published",
+          "whodunnit" => 2,
+        },
+        {
+          "event" => "update",
+          "state" => "withdrawn",
+          "whodunnit" => 3,
+        },
+      ]
+
+      import_data["editions"][0]["unpublishing"] = {
+        "id" => 1,
+        "explanation" => "",
+        "alternative_url" => "",
+        "created_at" => "2019-11-07T16:12:52.000+00:00",
+        "updated_at" => "2019-11-07T16:12:52.000+00:00",
+        "redirect" => false,
+        "unpublishing_reason" => "Published in error",
+      }
+
+      importer = Tasks::WhitehallImporter.new(123, import_data)
+      importer.import
+
+      expect(Status.count).to eq(2)
+      expect(Status.first.state).to eq("published")
+      expect(Edition.last.status).to be_withdrawn
+      expect(Edition.last).not_to be_live
+    end
+
+    it "sets the correct states when Whitehall document state is withdrawn and was force_published" do
+      import_data["editions"][0]["state"] = "withdrawn"
+      import_data["editions"][0]["force_published"] = true
+
+      import_data["editions"][0]["revision_history"] += [
+        {
+          "event" => "update",
+          "state" => "published",
+          "whodunnit" => 2,
+        },
+        {
+          "event" => "update",
+          "state" => "withdrawn",
+          "whodunnit" => 3,
+        },
+      ]
+
+      import_data["editions"][0]["unpublishing"] = {
+        "id" => 1,
+        "explanation" => "",
+        "alternative_url" => "",
+        "created_at" => "2019-11-07T16:12:52.000+00:00",
+        "updated_at" => "2019-11-07T16:12:52.000+00:00",
+        "redirect" => false,
+        "unpublishing_reason" => "Published in error",
+      }
+
+      importer = Tasks::WhitehallImporter.new(123, import_data)
+      importer.import
+
+      expect(Status.count).to eq(2)
+      expect(Status.first.state).to eq("published_but_needs_2i")
+      expect(Edition.last.status).to be_withdrawn
+      expect(Edition.last).not_to be_live
+    end
+
+    it "sets the user that created the additional document state" do
+      import_data["editions"][0]["state"] = "withdrawn"
+      import_data["editions"][0]["revision_history"] += [
+        {
+          "event" => "update",
+          "state" => "published",
+          "whodunnit" => 2,
+        },
+        {
+          "event" => "update",
+          "state" => "withdrawn",
+          "whodunnit" => 3,
+        },
+      ]
+
+      import_data["users"] += [
+        {
+          "id" => 2,
+          "name" => "Another Person",
+          "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
+          "email" => "another-publisher@department.gov.uk",
+          "organisation_slug" => "a-government-department",
+          "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+        },
+        {
+          "id" => 3,
+          "name" => "An extra Person",
+          "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
+          "email" => "an-extra-publisher@department.gov.uk",
+          "organisation_slug" => "a-government-department",
+          "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+        },
+      ]
+
+      import_data["editions"][0]["unpublishing"] = {
+        "id" => 1,
+        "explanation" => "",
+        "alternative_url" => "",
+        "created_at" => "2019-11-07T16:12:52.000+00:00",
+        "updated_at" => "2019-11-07T16:12:52.000+00:00",
+        "redirect" => false,
+        "unpublishing_reason" => "Published in error",
+      }
+
+      importer = Tasks::WhitehallImporter.new(123, import_data)
+      importer.import
+
+      expect(Status.first.created_by_id).to eq(User.second_to_last.id)
+      expect(Edition.last.status.created_by_id).to eq(User.last.id)
+    end
+
+    it "sets the created_at datetime of the additional document state" do
+      importer = Tasks::WhitehallImporter.new(123, import_data)
+      import_data["editions"][0]["state"] = "withdrawn"
+      import_data["editions"][0]["revision_history"] = [
+        {
+          "event" => "create",
+          "state" => "draft",
+          "whodunnit" => 1,
+          "created_at" => 5.days.ago,
+        },
+        {
+          "event" => "update",
+          "state" => "published",
+          "whodunnit" => 2,
+          "created_at" => 4.days.ago,
+        },
+        {
+          "event" => "update",
+          "state" => "withdrawn",
+          "whodunnit" => 3,
+          "created_at" => 3.days.ago,
+        },
+      ]
+
+      import_data["users"] += [
+        {
+          "id" => 2,
+          "name" => "Another Person",
+          "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
+          "email" => "another-publisher@department.gov.uk",
+          "organisation_slug" => "a-government-department",
+          "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+        },
+        {
+          "id" => 3,
+          "name" => "An extra Person",
+          "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
+          "email" => "an-extra-publisher@department.gov.uk",
+          "organisation_slug" => "a-government-department",
+          "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+        },
+      ]
+
+      import_data["editions"][0]["unpublishing"] = {
+        "id" => 1,
+        "explanation" => "",
+        "alternative_url" => "",
+        "created_at" => "2019-11-07T16:12:52.000+00:00",
+        "updated_at" => "2019-11-07T16:12:52.000+00:00",
+        "redirect" => false,
+        "unpublishing_reason" => "Published in error",
+      }
+
+      importer.import
+
+      initial_imported_created_at = import_data["editions"][0]["revision_history"][1]["created_at"]
+      additional_imported_created_at = import_data["editions"][0]["revision_history"][2]["created_at"]
+
+      expect(Status.first.created_at).to be_within(1.second).of initial_imported_created_at
+      expect(Edition.last.status.created_at).to be_within(1.second).of additional_imported_created_at
+    end
+
+    it "raises AbortImportError when document is withdrawn but has no unpublishing details" do
+      importer = Tasks::WhitehallImporter.new(123, import_data)
+      import_data["editions"][0]["state"] = "withdrawn"
+      import_data["editions"][0]["revision_history"] = [
+        {
+          "event" => "create",
+          "state" => "draft",
+          "whodunnit" => 1,
+          "created_at" => 5.days.ago,
+        },
+        {
+          "event" => "update",
+          "state" => "published",
+          "whodunnit" => 2,
+          "created_at" => 4.days.ago,
+        },
+        {
+          "event" => "update",
+          "state" => "withdrawn",
+          "whodunnit" => 3,
+          "created_at" => 3.days.ago,
+        },
+      ]
+
+      import_data["users"] += [
+        {
+          "id" => 2,
+          "name" => "Another Person",
+          "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
+          "email" => "another-publisher@department.gov.uk",
+          "organisation_slug" => "a-government-department",
+          "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+        },
+        {
+          "id" => 3,
+          "name" => "An extra Person",
+          "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
+          "email" => "an-extra-publisher@department.gov.uk",
+          "organisation_slug" => "a-government-department",
+          "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+        },
+      ]
+
+      expect { importer.import }.to raise_error(Tasks::AbortImportError)
+    end
+
+    it "sets the Withdrawal details for a withdrawn document" do
+      importer = Tasks::WhitehallImporter.new(123, import_data)
+      import_data["editions"][0]["state"] = "withdrawn"
+      import_data["editions"][0]["revision_history"] = [
+        {
+          "event" => "create",
+          "state" => "draft",
+          "whodunnit" => 1,
+          "created_at" => 5.days.ago,
+        },
+        {
+          "event" => "update",
+          "state" => "published",
+          "whodunnit" => 2,
+          "created_at" => 4.days.ago,
+        },
+        {
+          "event" => "update",
+          "state" => "withdrawn",
+          "whodunnit" => 3,
+          "created_at" => 3.days.ago,
+        },
+      ]
+
+      import_data["users"] += [
+        {
+          "id" => 2,
+          "name" => "Another Person",
+          "uid" => "b4a2ba47-5990-4456-b952-0a1d24b82c18",
+          "email" => "another-publisher@department.gov.uk",
+          "organisation_slug" => "a-government-department",
+          "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+        },
+        {
+          "id" => 3,
+          "name" => "An extra Person",
+          "uid" => "2e1d3a3d-c44d-4a7e-a38a-ff62de3e4001",
+          "email" => "an-extra-publisher@department.gov.uk",
+          "organisation_slug" => "a-government-department",
+          "organisation_content_id" => "01892f23-b069-43f5-8404-d082f8dffcb9",
+        },
+      ]
+
+      import_data["editions"][0]["unpublishing"] = {
+        "id" => 1,
+        "explanation" => "User facing explanation",
+        "alternative_url" => "",
+        "created_at" => "2019-11-07T16:12:52.000+00:00",
+        "updated_at" => "2019-11-07T16:12:52.000+00:00",
+        "redirect" => false,
+        "unpublishing_reason" => "Published in error",
+      }
+
+      importer.import
+
+      expect(Edition.last.status.details.published_status_id).to eq(Status.first.id)
+      expect(Edition.last.status.details.public_explanation).to eq(import_data["editions"][0]["unpublishing"]["explanation"])
+      expect(Edition.last.status.details.withdrawn_at).to eq(import_data["editions"][0]["unpublishing"]["created_at"])
+    end
   end
 
   context "when an imported document has more than one edition" do
