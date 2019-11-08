@@ -57,7 +57,7 @@ class Edition < ApplicationRecord
   delegate :title,
            :title_or_fallback,
            :base_path,
-           :document_type, 
+           :document_type,
            :summary,
            :contents,
            :update_type,
