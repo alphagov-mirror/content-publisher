@@ -257,6 +257,13 @@ RSpec.describe Tasks::WhitehallImporter do
       expect(Edition.last).not_to be_live
     end
 
+    it "raises AbortImportError when revision history cannot be found for state" do
+      import_data_for_withdrawn_edition["editions"][0]["revision_history"].delete_at(1)
+      importer = Tasks::WhitehallImporter.new(123, import_data_for_withdrawn_edition)
+
+      expect { importer.import }.to raise_error(Tasks::AbortImportError)
+    end
+
     it "sets the user that created the additional document state" do
       importer = Tasks::WhitehallImporter.new(123, import_data_for_withdrawn_edition)
       importer.import

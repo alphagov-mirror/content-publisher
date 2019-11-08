@@ -144,6 +144,8 @@ module Tasks
                  whitehall_edition["revision_history"].last
                end
 
+      raise AbortImportError unless author
+
       Status.new(
         state: state(whitehall_edition),
         revision_at_creation: revision,
