@@ -126,8 +126,9 @@ RSpec.describe Tasks::WhitehallImporter do
   end
 
   it "sets the created_at datetime of the document state" do
-    importer = Tasks::WhitehallImporter.new(123, import_data)
     import_data["editions"][0]["revision_history"][0].merge!("created_at" => 3.days.ago)
+
+    importer = Tasks::WhitehallImporter.new(123, import_data)
     importer.import
 
     imported_created_at = import_data["editions"][0]["revision_history"][0]["created_at"]
