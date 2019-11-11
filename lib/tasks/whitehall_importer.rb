@@ -157,11 +157,6 @@ module Tasks
     def additional_status(whitehall_edition, edition)
       author = whitehall_edition["revision_history"].last
 
-      details = Withdrawal.new(
-        published_status: edition.status,
-        public_explanation: whitehall_edition["unpublishing"]["explanation"],
-        withdrawn_at: whitehall_edition["unpublishing"]["created_at"],
-      )
       raise AbortImportError unless valid_state?(whitehall_edition)
 
       edition.status = Status.new(
@@ -169,7 +164,7 @@ module Tasks
         revision_at_creation: edition.revision,
         created_by_id: user_ids[author["whodunnit"]],
         created_at: author["created_at"],
-        details: details,
+        details: state_details(whitehall_edition, edition),
       )
 
       edition.save!
@@ -187,6 +182,16 @@ module Tasks
       return false if whitehall_edition["state"] == "withdrawn" && !whitehall_edition["unpublishing"]
 
       true
+    end
+
+    def state_details(whitehall_edition, edition)
+      return nil unless whitehall_edition["state"] == "withdrawn"
+
+      Withdrawal.new(
+        published_status: edition.status,
+        public_explanation: whitehall_edition["unpublishing"]["explanation"],
+        withdrawn_at: whitehall_edition["unpublishing"]["created_at"],
+      )
     end
 
     def state(whitehall_edition)
