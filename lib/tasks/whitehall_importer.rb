@@ -154,10 +154,6 @@ module Tasks
       )
     end
 
-    def set_published_state_first?(state)
-      state == "withdrawn"
-    end
-
     def additional_status(whitehall_edition, edition)
       author = whitehall_edition["revision_history"].last
 
@@ -178,6 +174,10 @@ module Tasks
       )
 
       edition.save!
+    end
+
+    def set_published_state_first?(state)
+      state == "withdrawn"
     end
 
     def state(whitehall_edition)
