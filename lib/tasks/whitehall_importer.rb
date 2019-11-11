@@ -139,7 +139,7 @@ module Tasks
 
     def initial_status(whitehall_edition, revision)
       author = if set_published_state_first?(whitehall_edition["state"])
-                 whitehall_edition["revision_history"].select { |h| h["state"] == "published" }.first
+                 published_author(whitehall_edition)
                else
                  whitehall_edition["revision_history"].last
                end
@@ -178,6 +178,10 @@ module Tasks
 
     def set_published_state_first?(state)
       state == "withdrawn"
+    end
+
+    def published_author(whitehall_edition)
+      whitehall_edition["revision_history"].select { |h| h["state"] == "published" }.first
     end
 
     def state(whitehall_edition)
