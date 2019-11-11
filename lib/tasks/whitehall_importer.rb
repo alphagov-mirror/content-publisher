@@ -134,7 +134,7 @@ module Tasks
         last_edited_by_id: user_ids[last_author["whodunnit"]],
       )
 
-      additional_status(whitehall_edition, edition) if set_published_state_first?(whitehall_edition["state"])
+      set_current_status(whitehall_edition, edition) if set_published_state_first?(whitehall_edition["state"])
     end
 
     def initial_status(whitehall_edition, revision)
@@ -154,7 +154,7 @@ module Tasks
       )
     end
 
-    def additional_status(whitehall_edition, edition)
+    def set_current_status(whitehall_edition, edition)
       author = whitehall_edition["revision_history"].last
 
       raise AbortImportError unless valid_state?(whitehall_edition)
