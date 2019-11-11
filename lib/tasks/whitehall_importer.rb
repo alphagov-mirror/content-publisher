@@ -157,13 +157,12 @@ module Tasks
     def additional_status(whitehall_edition, edition)
       author = whitehall_edition["revision_history"].last
 
-      raise AbortImportError if whitehall_edition["state"] == "withdrawn" && !whitehall_edition["unpublishing"]
-
       details = Withdrawal.new(
         published_status: edition.status,
         public_explanation: whitehall_edition["unpublishing"]["explanation"],
         withdrawn_at: whitehall_edition["unpublishing"]["created_at"],
       )
+      raise AbortImportError unless valid_state?(whitehall_edition)
 
       edition.status = Status.new(
         state: whitehall_edition["state"],
@@ -182,6 +181,12 @@ module Tasks
 
     def published_author(whitehall_edition)
       whitehall_edition["revision_history"].select { |h| h["state"] == "published" }.first
+    end
+
+    def valid_state?(whitehall_edition)
+      return false if whitehall_edition["state"] == "withdrawn" && !whitehall_edition["unpublishing"]
+
+      true
     end
 
     def state(whitehall_edition)
