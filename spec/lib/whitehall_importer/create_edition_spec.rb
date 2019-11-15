@@ -112,6 +112,16 @@ RSpec.describe WhitehallImporter::CreateEdition do
       expect(Edition.last.status.created_at).to be_within(1.second).of imported_created_at
     end
 
+    it "raises AbortImportError when edition has an unsupported locale" do
+      whitehall_edition["translations"][0]["locale"] = "zz"
+
+      create_edition = WhitehallImporter::CreateEdition.new(
+        document, whitehall_document, whitehall_edition, 1, 1, user_ids
+      )
+
+      expect { create_edition.call }.to raise_error(WhitehallImporter::AbortImportError)
+    end
+
     context "when importing a withdrawn document" do
       let(:whitehall_edition) { whitehall_export_with_one_withdrawn_edition["editions"].first }
 
