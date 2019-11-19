@@ -16,4 +16,8 @@ module FixturesHelper
   def whitehall_export_with_one_withdrawn_edition
     JSON.parse(File.read(fixtures_path + "/whitehall_export_with_one_withdrawn_edition.json"))
   end
+
+  def whitehall_export_with_file_attachments
+    JSON.parse(File.read(fixtures_path + "/whitehall_export_with_file_attachments.json"))
+  end
 end
