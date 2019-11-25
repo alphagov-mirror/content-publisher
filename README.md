@@ -21,26 +21,6 @@ This is a Ruby on Rails application.
 - [yarn][] - package manager for JavaScripts
 - [imagemagick][] - image manipulation library
 
-### Running the application
-
-The first time you run this application you'll want to set you
-[permissions](#permissions).
-
-Then, if you are running on the [GOV.UK development VM][dev-vm]:
-
-```
-cd /var/govuk/govuk-puppet/development-vm
-bowl content-publisher
-```
-
-You should be able to access the app at: http://content-publisher.dev.gov.uk/
-
-Otherwise, on your machine:
-
-```
-./startup.sh
-```
-
 ### Running the test suite
 
 ```
