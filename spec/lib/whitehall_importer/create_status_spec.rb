@@ -131,5 +131,18 @@ RSpec.describe WhitehallImporter::CreateStatus do
         expect(status.details.public_explanation).to eq(unpublishing["explanation"])
       end
     end
+
+    context "when the document is scheduled" do
+      let(:import_data_for_withdrawn_edition) { whitehall_export_with_one_withdrawn_edition }
+
+      it "sets the Withdrawal details for a withdrawn document" do
+        whitehall_edition = build(:whitehall_export_edition,
+                                  state: "scheduled")
+
+        status = described_class.call(revision, whitehall_edition, user_ids)
+
+        expect(status).to be_scheduled
+      end
+    end
   end
 end

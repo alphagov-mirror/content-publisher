@@ -8,6 +8,7 @@ module WhitehallImporter
       draft
       published
       rejected
+      scheduled
       submitted
       superseded
       withdrawn
@@ -62,6 +63,7 @@ module WhitehallImporter
       when "published"
         whitehall_edition["force_published"] ? "published_but_needs_2i" : "published"
       when "withdrawn" then "withdrawn"
+      when "scheduled" then "scheduled"
       else
         "submitted_for_review"
       end
