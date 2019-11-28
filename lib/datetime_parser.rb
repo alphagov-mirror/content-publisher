@@ -49,10 +49,7 @@ private
       return
     end
 
-    if time[:hour] > 23
-      issues << Requirements::Issue.new(field_name, :invalid)
-      return
-    end
+    issues << Requirements::Issue.new(field_name, :invalid) if time[:hour] > 23
   end
 
   def parsed_time_values
