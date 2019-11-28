@@ -21,6 +21,8 @@ module WhitehallImporter
 
       edition = if whitehall_edition["state"] == "withdrawn"
                   create_withdrawn_edition
+                elsif whitehall_edition["state"] == "scheduled"
+                  create_scheduled_edition
                 else
                   create_edition
                 end
@@ -39,7 +41,11 @@ module WhitehallImporter
     end
 
     def create_withdrawn_edition
-      create_edition("published").tap { |edition| set_withdrawn_status(edition) }
+      create_edition("published").tap { |edition| set_status(edition) }
+    end
+
+    def create_scheduled_edition
+      create_edition("submitted_for_review").tap { |edition| set_status(edition) }
     end
 
     def create_edition(whitehall_edition_state = nil)
@@ -65,7 +71,7 @@ module WhitehallImporter
       )
     end
 
-    def set_withdrawn_status(edition)
+    def set_status(edition)
       edition.status = CreateStatus.call(
         edition.revision,
         whitehall_edition,

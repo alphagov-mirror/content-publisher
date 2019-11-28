@@ -133,15 +133,46 @@ RSpec.describe WhitehallImporter::CreateStatus do
     end
 
     context "when the document is scheduled" do
-      let(:import_data_for_withdrawn_edition) { whitehall_export_with_one_withdrawn_edition }
+      let(:edition) { create(:edition, :publishable) }
 
-      it "sets the Withdrawal details for a withdrawn document" do
+      it "sets the correct state when Whitehall document state is scheduled" do
         whitehall_edition = build(:whitehall_export_edition,
                                   state: "scheduled")
 
-        status = described_class.call(revision, whitehall_edition, user_ids)
+        status = described_class.call(revision, whitehall_edition, user_ids, edition: edition)
 
         expect(status).to be_scheduled
+      end
+
+      it "creates Scheduling correctly" do
+        future_date = (Date.today + 3.days).to_s
+        whitehall_edition = build(:whitehall_export_edition,
+                                  state: "scheduled",
+                                  scheduled_publication: future_date,
+                                )
+
+        status = described_class.call(revision, whitehall_edition, user_ids, edition: edition)
+
+        expect(status.details).to be_a(Scheduling)
+        expect(status.details.pre_scheduled_status).to eq(edition.status)
+        expect(status.details.reviewed).to be true
+        expect(status.details.publish_time).to eq(future_date)
+      end
+
+      it "creates Scheduling correctly for force published document" do
+        future_date = (Date.today + 3.days).to_s
+        whitehall_edition = build(:whitehall_export_edition,
+                                  state: "scheduled",
+                                  scheduled_publication: future_date,
+                                  force_published: true,
+                                )
+
+        status = described_class.call(revision, whitehall_edition, user_ids, edition: edition)
+
+        expect(status.details).to be_a(Scheduling)
+        expect(status.details.pre_scheduled_status).to eq(edition.status)
+        expect(status.details.reviewed).to be false
+        expect(status.details.publish_time).to eq(future_date)
       end
     end
   end
