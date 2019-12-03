@@ -12,11 +12,14 @@ module WhitehallImporter
     end
 
     def call
+      check_whitehall_file_attachment_type
+
       downloaded_file = DownloadFile.call(whitehall_file_attachment["url"])
       decorated_file = AttachmentFileDecorator.new(downloaded_file, unique_filename)
-      check_file_requirements(decorated_file)
-      blob_revision = create_blob_revision(decorated_file)
 
+      check_file_requirements(decorated_file)
+
+      blob_revision = create_blob_revision(decorated_file)
       FileAttachment::Revision.create!(
         blob_revision: blob_revision,
         file_attachment: FileAttachment.create!,
@@ -50,6 +53,12 @@ module WhitehallImporter
       ).pre_upload_issues
 
       abort_on_issue(upload_checker.issues)
+    end
+
+    def check_whitehall_file_attachment_type
+      return if whitehall_file_attachment["type"] == "FileAttachment"
+
+      raise WhitehallImporter::AbortImportError, "Unsupported file attachment: #{whitehall_file_attachment['type']}"
     end
 
     def abort_on_issue(issues)
