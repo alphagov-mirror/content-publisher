@@ -6,17 +6,35 @@ module WhitehallImporter
       new(*args).call
     end
 
-    def initialize(whitehall_file_attachment)
+    def initialize(whitehall_file_attachment, existing_filenames = [])
       @whitehall_file_attachment = whitehall_file_attachment
+      @existing_filenames = existing_filenames
     end
 
     def call
-      DownloadFile.call(whitehall_file_attachment["url"])
+      downloaded_file = DownloadFile.call(whitehall_file_attachment["url"])
+      decorated_file = AttachmentFileDecorator.new(downloaded_file, unique_filename)
+
+      create_blob_revision(decorated_file)
     end
 
   private
 
-    attr_reader :whitehall_file_attachment
+    attr_reader :whitehall_file_attachment, :existing_filenames
+
+    def create_blob_revision(file)
+      FileAttachmentBlobService.call(
+        file: file,
+        filename: unique_filename,
+      )
+    end
+
+    def unique_filename
+      @unique_filename ||= UniqueFilenameService.call(
+        existing_filenames,
+        File.basename(whitehall_file_attachment["url"]),
+      )
+    end
   end
 
   class AttachmentFileDecorator < SimpleDelegator
