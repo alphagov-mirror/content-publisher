@@ -11,6 +11,19 @@ RSpec.describe WhitehallImporter::CreateFileAttachmentRevision do
         .to change { FileAttachment::BlobRevision.count }.by(1)
     end
 
+    it "creates a FileAttachment::Revision" do
+      expect { described_class.call(whitehall_file_attachment) }
+        .to change { FileAttachment::Revision.count }.by(1)
+    end
+
+    it "creates a FileAttachment::MetadataRevision" do
+      metadata_revision = nil
+      expect { metadata_revision = described_class.call(whitehall_file_attachment) }
+        .to change { FileAttachment::MetadataRevision.count }.by(1)
+
+      expect(metadata_revision.title).to eq(whitehall_file_attachment["title"])
+    end
+
     it "creates a FileAttachment::Asset" do
       expect { described_class.call(whitehall_file_attachment) }
         .to change { FileAttachment::Asset.count }.by(1)
