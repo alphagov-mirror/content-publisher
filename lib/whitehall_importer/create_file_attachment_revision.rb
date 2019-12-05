@@ -13,9 +13,7 @@ module WhitehallImporter
 
     def call
       check_whitehall_file_attachment_type
-
-      downloaded_file = DownloadFile.call(whitehall_file_attachment["url"])
-      decorated_file = AttachmentFileDecorator.new(downloaded_file, unique_filename)
+      decorated_file = AttachmentFileDecorator.new(download_file, unique_filename)
 
       check_file_requirements(decorated_file)
 
@@ -32,6 +30,12 @@ module WhitehallImporter
   private
 
     attr_reader :whitehall_file_attachment, :existing_filenames
+
+    def download_file
+      URI.parse(whitehall_file_attachment["url"]).open
+    rescue OpenURI::HTTPError
+      raise WhitehallImporter::AbortImportError, "File does not exist: #{file_url}"
+    end
 
     def unique_filename
       @unique_filename ||= UniqueFilenameService.call(
