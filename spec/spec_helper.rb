@@ -36,6 +36,7 @@ RSpec.configure do |config|
   config.include GdsApi::TestHelpers::AssetManager
   config.include GovukSchemas::RSpecMatchers
   config.include AuthenticationHelper, type: :feature
+  config.include AuthenticationHelper, type: :request
 
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
@@ -53,7 +54,7 @@ RSpec.configure do |config|
     ActionMailer::Base.deliveries.clear
   end
 
-  config.after :each, type: :feature do
+  config.after :each, type: lambda { |s| %i(feature request).include?(s) } do
     reset_authentication
   end
 end

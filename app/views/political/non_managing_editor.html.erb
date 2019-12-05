@@ -1,0 +1,8 @@
+<% content_for :back_link, render_back_link(href: document_path(@edition.document)) %>
+<% content_for :title, t("political.no_managing_editor_permission.title", title: @edition.title) %>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <%= render_govspeak(t("political.no_managing_editor_permission.body_govspeak")) %>
+  </div>
+</div>
