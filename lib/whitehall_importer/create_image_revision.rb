@@ -14,8 +14,10 @@ module WhitehallImporter
     end
 
     def call
-      temp_image = normalise_image(download_file)
+      downloaded_file = DownloadFile.call(whitehall_image["url"])
+      temp_image = normalise_image(downloaded_file)
       blob_revision = create_blob_revision(temp_image)
+
       Image::Revision.create!(
         image: Image.new,
         metadata_revision: Image::MetadataRevision.new(
@@ -27,18 +29,6 @@ module WhitehallImporter
     end
 
   private
-
-    def download_file
-      file = URI.parse(whitehall_image["url"]).open
-      if file.is_a?(StringIO)
-        # files less than 10 KB return StringIO (we have to manually cast to a tempfile)
-        Tempfile.new.tap { |tmp| File.write(tmp.path, file.string) }
-      else
-        file
-      end
-    rescue OpenURI::HTTPError
-      raise WhitehallImporter::AbortImportError, "Image does not exist: #{whitehall_image['url']}"
-    end
 
     def create_blob_revision(temp_image)
       ImageBlobService.call(

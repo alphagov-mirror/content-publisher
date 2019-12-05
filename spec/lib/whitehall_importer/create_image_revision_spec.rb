@@ -13,22 +13,6 @@ RSpec.describe WhitehallImporter::CreateImageRevision do
       expect(image_revision.filename).to eq("valid-image.jpg")
     end
 
-    context "Image is not available" do
-      let(:image_url) { "https://assets.publishing.service.gov.uk/government/uploads/404ing-image.jpg" }
-      let(:whitehall_image) do
-        whitehall_image = build(:whitehall_export_image, url: image_url)
-        stub_request(:get, image_url).to_return(status: 404)
-        whitehall_image
-      end
-
-      it "should raise a WhitehallImporter::AbortImportError" do
-        expect { described_class.call(whitehall_image) }.to raise_error(
-          WhitehallImporter::AbortImportError,
-          "Image does not exist: #{image_url}",
-        )
-      end
-    end
-
     context "Image is wrong type" do
       let(:whitehall_image) do
         build(:whitehall_export_image, filename: "vector.svg", fixture_file: "coffee.svg")
