@@ -4,6 +4,10 @@ RSpec.describe WhitehallImporter::Import do
   describe ".call" do
     let(:whitehall_user) { build(:whitehall_export_user) }
 
+    before do
+      stub_any_publishing_api_patch_links
+    end
+
     it "creates a document" do
       expect { described_class.call(build(:whitehall_export_document)) }
         .to change { Document.count }.by(1)
@@ -79,6 +83,15 @@ RSpec.describe WhitehallImporter::Import do
       expect(WhitehallImporter::CreateEdition).to receive(:call).with(
         hash_including(current: true),
       ).ordered
+
+      described_class.call(import_data)
+    end
+
+    it "clears all linkset links except topics and taxons" do
+      import_data = build(:whitehall_export_document)
+      expect(WhitehallImporter::ClearLinksetLinks)
+        .to receive(:call)
+        .with(import_data["content_id"])
 
       described_class.call(import_data)
     end

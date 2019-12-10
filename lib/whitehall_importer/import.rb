@@ -27,6 +27,8 @@ module WhitehallImporter
           )
         end
 
+        ClearLinksetLinks.call(whitehall_document["content_id"])
+
         document
       end
     end

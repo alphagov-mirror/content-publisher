@@ -9,6 +9,7 @@ RSpec.describe "Import tasks" do
       Rake::Task["import:whitehall"].reenable
       stub_request(:get, "#{whitehall_host}/government/admin/export/document/123")
         .to_return(status: 200, body: build(:whitehall_export_document).to_json)
+      stub_any_publishing_api_patch_links
     end
 
     it "creates a document" do
