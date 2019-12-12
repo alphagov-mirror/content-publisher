@@ -1,53 +1,81 @@
 # frozen_string_literal: true
 
 RSpec.describe "Unwithdraw" do
-  let(:edition) { create(:edition, :withdrawn, :political, :past_government) }
+  let(:managing_editor) { create(:user, managing_editor: true) }
+  let(:withdrawn_edition) { create(:edition, :withdrawn) }
+  let(:history_mode_edition) { create(:edition, :withdrawn, :political, :past_government) }
 
   describe "POST /documents/:document/unwithdraw" do
+    it "unwithdraws the edition" do
+      stub_publishing_api_republish(withdrawn_edition.content_id, {})
+      login_as(managing_editor)
+
+      post unwithdraw_path(withdrawn_edition.document)
+      follow_redirect!
+
+      expect(response.body).to include(I18n.t!("documents.history.entry_types.unwithdrawn"))
+    end
+
     context "when the edition is in history mode" do
       it "lets users holding manage_live_history_mode permisssion unwithdraw the edition" do
-        stub_publishing_api_republish(edition.content_id, {})
+        stub_publishing_api_republish(history_mode_edition.content_id, {})
         user = create(:user, managing_editor: true, manage_live_history_mode: true)
         login_as(user)
 
-        post unwithdraw_path(edition.document)
+        post unwithdraw_path(history_mode_edition.document)
         follow_redirect!
 
         expect(response.body).to include(I18n.t!("documents.history.entry_types.unwithdrawn"))
       end
 
-      it "prevents users without manage_live_history_mode permisssion to unwithdraw the edition" do
-        user = create(:user, managing_editor: true)
-        login_as(user)
+      it "prevents users without manage_live_history_mode permisssion from unwithdrawing the edition" do
+        login_as(managing_editor)
 
-        post unwithdraw_path(edition.document)
+        post unwithdraw_path(history_mode_edition.document)
 
-        expect(response.body).to include(I18n.t!("missing_permissions.update_history_mode.title", title: edition.title))
-        expect(response.status).to eq(403)
+        expect(response.body).to include(I18n.t!("missing_permissions.update_history_mode.title", title: history_mode_edition.title))
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
 
   describe "GET /documents/:document/unwithdraw" do
+    it "fetches unwithdraw page" do
+      login_as(managing_editor)
+
+      get unwithdraw_path(withdrawn_edition.document)
+      follow_redirect!
+
+      expect(response.body).to include(I18n.t!("documents.show.unwithdraw.title"))
+    end
+
+    it "redirects to document summary when the edition is in the wrong state" do
+      edition = create(:edition, :published)
+      login_as(managing_editor)
+
+      get unwithdraw_path(edition.document)
+
+      expect(response).to redirect_to(document_path(edition.document))
+    end
+
     context "when the edition is in history mode" do
-      it "lets users holding manage_live_history_mode permisssion to access unwithdraw page" do
+      it "lets managing_editors holding manage_live_history_mode permisssion to access unwithdraw page" do
         user = create(:user, managing_editor: true, manage_live_history_mode: true)
         login_as(user)
 
-        get unwithdraw_path(edition.document)
+        get unwithdraw_path(history_mode_edition.document)
         follow_redirect!
 
         expect(response.body).to include(I18n.t!("documents.show.unwithdraw.title"))
       end
 
-      it "prevents users without manage_live_history_mode permisssion to access unwithdraw page" do
-        user = create(:user, managing_editor: true)
-        login_as(user)
+      it "prevents users without manage_live_history_mode permisssion from accessing unwithdraw page" do
+        login_as(managing_editor)
 
-        get unwithdraw_path(edition.document)
+        get unwithdraw_path(history_mode_edition.document)
 
-        expect(response.body).to include(I18n.t!("missing_permissions.update_history_mode.title", title: edition.title))
-        expect(response.status).to eq(403)
+        expect(response.body).to include(I18n.t!("missing_permissions.update_history_mode.title", title: history_mode_edition.title))
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
