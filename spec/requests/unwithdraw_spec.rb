@@ -26,6 +26,13 @@ RSpec.describe "Unwithdraw" do
       expect(response.body).to include(I18n.t!("withdraw.new.flashes.publishing_api_error.title"))
     end
 
+    it "prevents users without managing_editor permission from unwithdrawing the edition" do
+      post unwithdraw_path(withdrawn_edition.document)
+
+      expect(response.body).to include(I18n.t!("unwithdraw.no_managing_editor_permission.title"))
+      expect(response).to have_http_status(:forbidden)
+    end
+
     context "when the edition is in history mode" do
       it "lets users holding manage_live_history_mode permisssion unwithdraw the edition" do
         stub_publishing_api_republish(history_mode_edition.content_id, {})
@@ -66,6 +73,13 @@ RSpec.describe "Unwithdraw" do
       get unwithdraw_path(edition.document)
 
       expect(response).to redirect_to(document_path(edition.document))
+    end
+
+    it "prevents users without managing_editor permission from accessing unwithdraw page" do
+      get unwithdraw_path(withdrawn_edition.document)
+
+      expect(response.body).to include(I18n.t!("unwithdraw.no_managing_editor_permission.title"))
+      expect(response).to have_http_status(:forbidden)
     end
 
     context "when the edition is in history mode" do
