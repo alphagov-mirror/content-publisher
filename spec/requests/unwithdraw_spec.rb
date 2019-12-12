@@ -16,6 +16,16 @@ RSpec.describe "Unwithdraw" do
       expect(response.body).to include(I18n.t!("documents.history.entry_types.unwithdrawn"))
     end
 
+    it "returns an error when publishing-api is down" do
+      publishing_api_isnt_available
+      login_as(managing_editor)
+
+      post unwithdraw_path(withdrawn_edition.document)
+      follow_redirect!
+
+      expect(response.body).to include(I18n.t!("withdraw.new.flashes.publishing_api_error.title"))
+    end
+
     context "when the edition is in history mode" do
       it "lets users holding manage_live_history_mode permisssion unwithdraw the edition" do
         stub_publishing_api_republish(history_mode_edition.content_id, {})
