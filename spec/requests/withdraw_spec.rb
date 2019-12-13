@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 RSpec.describe "Withdraw" do
-  let(:managing_editor) { create(:user, managing_editor: true) }
-  let(:published_edition) { create(:edition, :published) }
-  let(:history_mode_edition) { create(:edition, :published, :political, :past_government) }
-
   describe "POST /documents/:document/withdraw" do
+    let(:managing_editor) { create(:user, managing_editor: true) }
+    let(:published_edition) { create(:edition, :published) }
+    let(:history_mode_edition) { create(:edition, :published, :political, :past_government) }
+
     it "withdraws the edition" do
       stub_publishing_api_unpublish(published_edition.content_id, body: {})
       login_as(managing_editor)
@@ -74,6 +74,10 @@ RSpec.describe "Withdraw" do
   end
 
   describe "GET /documents/:document/withdraw" do
+    let(:managing_editor) { create(:user, managing_editor: true) }
+    let(:published_edition) { create(:edition, :published) }
+    let(:history_mode_edition) { create(:edition, :published, :political, :past_government) }
+
     it "fetches withdraw page" do
       stub_publishing_api_unpublish(published_edition.content_id, body: {})
       login_as(managing_editor)
@@ -84,12 +88,12 @@ RSpec.describe "Withdraw" do
     end
 
     it "redirects to document summary when the edition is in the wrong state" do
-      edition = create(:edition)
+      draft_edition = create(:edition)
       login_as(managing_editor)
 
-      get withdraw_path(edition.document)
+      get withdraw_path(draft_edition.document)
 
-      expect(response).to redirect_to(document_path(edition.document))
+      expect(response).to redirect_to(document_path(draft_edition.document))
     end
 
     it "prevents users without managing_editor permission from accessing withdraw page" do
