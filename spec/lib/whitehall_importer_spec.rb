@@ -30,14 +30,14 @@ RSpec.describe WhitehallImporter do
 
     context "when the import fails" do
       before do
-        allow(WhitehallImporter::Import).to receive(:call).and_raise(message)
+        allow(WhitehallImporter::Import).to receive(:call).and_raise(TypeError, message)
       end
 
       let(:message) { "Import failed" }
 
       it "marks the import as failed and logs the error" do
         record = WhitehallImporter.import(build(:whitehall_export_document))
-        expect(record).to be_failed
+        expect(record).to be_import_failed
         expect(record.error_log).to eq(message)
       end
     end
