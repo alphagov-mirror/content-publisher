@@ -25,6 +25,18 @@ RSpec.describe "Import tasks" do
         .to raise_error(SystemExit)
     end
 
+    it "aborts if the import aborts" do
+      expect(WhitehallImporter::Import).to receive(:call).and_raise(
+        WhitehallImporter::AbortImportError,
+        "Some known error",
+      )
+
+      expect($stdout).to receive(:puts).with("Import aborted")
+      expect($stdout).to receive(:puts).with("Error: Some known error")
+      expect { Rake::Task["import:whitehall"].invoke("123") }
+        .to raise_error(SystemExit)
+    end
+
     it "syncs the imported document with publishing-api" do
       document = create(:document, :with_current_and_live_editions)
       allow(Document).to receive(:find_by).and_return(document)

@@ -19,9 +19,13 @@ namespace :import do
       puts "Import failed"
       puts "Error: #{import.error_log}"
       abort
-    else
-      document = Document.find_by(content_id: import.content_id)
-      WhitehallImporter.sync(document)
+    elsif import.import_aborted?
+      puts "Import aborted"
+      puts "Error: #{import.error_log}"
+      abort
     end
+
+    document = Document.find_by(content_id: import.content_id)
+    WhitehallImporter.sync(document)
   end
 end

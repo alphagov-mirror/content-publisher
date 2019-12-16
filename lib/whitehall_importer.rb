@@ -12,6 +12,9 @@ module WhitehallImporter
     begin
       Import.call(whitehall_document)
       record.update!(state: "completed")
+    rescue AbortImportError => e
+      record.update!(error_log: e.message,
+                    state: "import_aborted")
     rescue StandardError => e
       record.update!(error_log: e.message,
                      state: "import_failed")
