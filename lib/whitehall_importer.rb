@@ -23,9 +23,14 @@ module WhitehallImporter
   end
 
   def self.sync(import, document)
+    import.update!(state: "syncing")
+
     ResyncService.call(document)
     ClearLinksetLinks.call(document.content_id)
 
     import.update!(state: "completed")
+  rescue GdsApi::HTTPErrorResponse => e
+    import.update!(error_log: e.message,
+                   state: "sync_failed")
   end
 end

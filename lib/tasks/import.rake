@@ -27,5 +27,11 @@ namespace :import do
 
     document = Document.find_by(content_id: import.content_id)
     WhitehallImporter.sync(import, document)
+
+    if import.sync_failed?
+      puts "Sync failed"
+      puts "Error: #{import.error_log}"
+      abort
+    end
   end
 end
