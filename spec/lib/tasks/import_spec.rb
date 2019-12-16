@@ -41,7 +41,7 @@ RSpec.describe "Import tasks" do
       document = create(:document, :with_current_and_live_editions)
       allow(Document).to receive(:find_by).and_return(document)
 
-      expect(WhitehallImporter).to receive(:sync).with(document)
+      expect(WhitehallImporter).to receive(:sync).with(anything, document)
       Rake::Task["import:whitehall"].invoke("123")
     end
 

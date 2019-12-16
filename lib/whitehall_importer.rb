@@ -11,7 +11,6 @@ module WhitehallImporter
 
     begin
       Import.call(whitehall_document)
-      record.update!(state: "completed")
     rescue AbortImportError => e
       record.update!(error_log: e.message,
                     state: "import_aborted")
@@ -23,8 +22,10 @@ module WhitehallImporter
     record
   end
 
-  def self.sync(document)
+  def self.sync(import, document)
     ResyncService.call(document)
     ClearLinksetLinks.call(document.content_id)
+
+    import.update!(state: "completed")
   end
 end

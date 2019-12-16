@@ -26,6 +26,6 @@ namespace :import do
     end
 
     document = Document.find_by(content_id: import.content_id)
-    WhitehallImporter.sync(document)
+    WhitehallImporter.sync(import, document)
   end
 end

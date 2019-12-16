@@ -21,13 +21,6 @@ RSpec.describe WhitehallImporter do
       expect(record.payload).to eq(whitehall_export)
     end
 
-    context "when the import is successful" do
-      it "marks the import as completed" do
-        record = WhitehallImporter.import(build(:whitehall_export_document))
-        expect(record).to be_completed
-      end
-    end
-
     context "when the import fails" do
       before do
         allow(WhitehallImporter::Import).to receive(:call).and_raise(TypeError, message)
@@ -63,10 +56,13 @@ RSpec.describe WhitehallImporter do
   describe ".sync" do
     it "syncs the imported document with publishing-api" do
       record = WhitehallImporter.import(build(:whitehall_export_document))
+      document = Document.find_by(content_id: record.content_id)
 
-      expect(ResyncService).to receive(:call).with(record)
+      expect(ResyncService).to receive(:call).with(document)
       expect(WhitehallImporter::ClearLinksetLinks).to receive(:call).with(record.content_id)
-      WhitehallImporter.sync(record)
+      WhitehallImporter.sync(record, document)
+
+      expect(record).to be_completed
     end
   end
 end
