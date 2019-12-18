@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_20_204541) do
+ActiveRecord::Schema.define(version: 2019_12_18_141708) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -99,6 +99,12 @@ ActiveRecord::Schema.define(version: 2019_11_20_204541) do
     t.index ["edition_id", "revision_id"], name: "index_editions_revisions_on_edition_id_and_revision_id", unique: true
     t.index ["edition_id"], name: "index_editions_revisions_on_edition_id"
     t.index ["revision_id"], name: "index_editions_revisions_on_revision_id"
+  end
+
+  create_table "editions_users", id: false, force: :cascade do |t|
+    t.bigint "edition_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["edition_id", "user_id"], name: "index_editions_users_on_edition_id_and_user_id", unique: true
   end
 
   create_table "file_attachment_assets", force: :cascade do |t|
