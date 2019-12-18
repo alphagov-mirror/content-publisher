@@ -48,6 +48,10 @@ class Edition < ApplicationRecord
 
   has_many :internal_notes
 
+  has_and_belongs_to_many :edition_editors,
+                          class_name: "User",
+                          join_table: :editions_users
+
   delegate :content_id, :locale, :topics, :document_topics, to: :document
 
   # delegate each state enum method
