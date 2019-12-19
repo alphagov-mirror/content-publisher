@@ -20,7 +20,7 @@ class AssignEditionStatusService < ApplicationService
       edition.last_edited_at = Time.current
     end
 
-    update_edition_editors(edition, user)
+    edition.update_edition_editors(user)
   end
 
 private

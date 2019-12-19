@@ -54,19 +54,11 @@ RSpec.describe AssignEditionStatusService do
 
     describe "updates the edition editors" do
       it "adds an edition user if they are not already listed as an editor" do
-        edition.edition_editors = []
+        edition = build(:edition)
 
         expect { AssignEditionStatusService.call(edition, user, :submitted_for_review) }
           .to change { edition.edition_editors.size }
           .by(1)
-      end
-
-      it "does not add an edition user if they are already listed as an editor" do
-        edition.edition_editors = []
-        edition.edition_editors << user
-
-        expect { AssignEditionStatusService.call(edition, user, :submitted_for_review) }
-          .not_to change { edition.edition_editors.size }
       end
     end
   end

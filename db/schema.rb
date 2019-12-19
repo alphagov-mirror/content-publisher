@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_18_141708) do
+ActiveRecord::Schema.define(version: 2019_12_19_095745) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -65,6 +65,15 @@ ActiveRecord::Schema.define(version: 2019_12_18_141708) do
     t.index ["created_by_id"], name: "index_documents_on_created_by_id"
   end
 
+  create_table "edition_editors", force: :cascade do |t|
+    t.bigint "edition_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["edition_id", "user_id"], name: "index_edition_editors_on_edition_id_and_user_id", unique: true
+    t.index ["edition_id"], name: "index_edition_editors_on_edition_id"
+    t.index ["user_id"], name: "index_edition_editors_on_user_id"
+  end
+
   create_table "editions", force: :cascade do |t|
     t.integer "number", null: false
     t.datetime "last_edited_at", null: false
@@ -99,12 +108,6 @@ ActiveRecord::Schema.define(version: 2019_12_18_141708) do
     t.index ["edition_id", "revision_id"], name: "index_editions_revisions_on_edition_id_and_revision_id", unique: true
     t.index ["edition_id"], name: "index_editions_revisions_on_edition_id"
     t.index ["revision_id"], name: "index_editions_revisions_on_revision_id"
-  end
-
-  create_table "editions_users", id: false, force: :cascade do |t|
-    t.bigint "edition_id", null: false
-    t.bigint "user_id", null: false
-    t.index ["edition_id", "user_id"], name: "index_editions_users_on_edition_id_and_user_id", unique: true
   end
 
   create_table "file_attachment_assets", force: :cascade do |t|
@@ -355,6 +358,8 @@ ActiveRecord::Schema.define(version: 2019_12_18_141708) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "content_revisions", "users", column: "created_by_id", on_delete: :restrict
   add_foreign_key "documents", "users", column: "created_by_id", on_delete: :restrict
+  add_foreign_key "edition_editors", "editions", on_delete: :restrict
+  add_foreign_key "edition_editors", "users", on_delete: :restrict
   add_foreign_key "editions", "access_limits", on_delete: :restrict
   add_foreign_key "editions", "documents", on_delete: :restrict
   add_foreign_key "editions", "revisions", on_delete: :restrict

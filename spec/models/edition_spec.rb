@@ -183,4 +183,28 @@ RSpec.describe Edition do
       end
     end
   end
+
+  describe "#update_edition_editors" do
+    it "adds an edition user if they are not already listed as an editor" do
+      user = build(:user)
+      edition = build(:edition)
+
+      expect {
+        edition.update_edition_editors(user).to(
+          change { edition.edition_editors.size }.by(1),
+        )
+      }
+    end
+
+    it "does not add an edition user if they are already listed as an editor" do
+      user = build(:user)
+      edition = build(:edition, edition_editors: [user])
+
+      expect {
+        edition.update_edition_editors(user).not_to(
+          change { edition.edition_editors.size },
+        )
+      }
+    end
+  end
 end
