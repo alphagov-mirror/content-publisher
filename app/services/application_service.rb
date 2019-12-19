@@ -7,7 +7,7 @@ class ApplicationService
     new(*args).call
   end
 
-  protected
+protected
 
   def update_edition_editors(edition, user)
     edition.edition_editors << user unless edition.edition_editors.include? user
