@@ -63,11 +63,19 @@ module WhitehallImporter
     end
 
     def primary_publishing_organisation_matches?
-      proposed_payload.dig("links", "primary_publishing_organisation") == publishing_api_content.dig("links", "primary_publishing_organisation")
+      primary_publishing_organisation =
+        publishing_api_content.dig("links", "primary_publishing_organisation") ||
+        publishing_api_links.dig("links", "primary_publishing_organisation")
+
+      proposed_payload.dig("links", "primary_publishing_organisation") == primary_publishing_organisation
     end
 
     def organisations_match?
-      proposed_payload.dig("links", "organisations")&.sort == publishing_api_content.dig("links", "organisations")&.sort
+      organisations =
+        publishing_api_content.dig("links", "organisations") ||
+        publishing_api_links.dig("links", "organisations")
+
+      proposed_payload.dig("links", "organisations")&.sort == organisations&.sort
     end
 
     def proposed_payload
@@ -76,6 +84,10 @@ module WhitehallImporter
 
     def publishing_api_content
       @publishing_api_content ||= GdsApi.publishing_api.get_content(edition.content_id).to_h
+    end
+
+    def publishing_api_links
+      @publishing_api_links ||= GdsApi.publishing_api.get_links(edition.content_id).to_h
     end
   end
 end
