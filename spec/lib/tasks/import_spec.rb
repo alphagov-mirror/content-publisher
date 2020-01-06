@@ -28,12 +28,14 @@ RSpec.describe "Import tasks" do
       Rake::Task["import:whitehall_document"].reenable
       allow(ResyncService).to receive(:call)
       allow(WhitehallImporter::ClearLinksetLinks).to receive(:call)
+      allow(WhitehallImporter::Import).to receive(:call).and_return(create(:document, :with_current_edition))
       stub_request(:get, "#{whitehall_host}/government/admin/export/document/123")
         .to_return(status: 200, body: whitehall_export.to_json)
     end
 
     it "creates a document" do
-      expect { Rake::Task["import:whitehall_document"].invoke("123") }.to change { Document.count }.by(1)
+      expect(Document.count).to eq(1)
+      Rake::Task["import:whitehall_document"].invoke("123")
     end
 
     it "imports the export and syncs with publishing-api" do
