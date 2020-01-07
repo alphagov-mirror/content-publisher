@@ -15,7 +15,6 @@ FactoryBot.define do
     transient do
       fixture { "1000x1000.png" }
       assets { nil }
-      ensure_assets { true }
     end
 
     after(:build) do |blob_revision, evaluator|
@@ -28,7 +27,7 @@ FactoryBot.define do
 
       if evaluator.assets
         blob_revision.assets = evaluator.assets
-      elsif evaluator.ensure_assets
+      else
         blob_revision.ensure_assets
       end
     end
