@@ -23,12 +23,23 @@ RSpec.describe WhitehallImporter::MigrateAssets do
       expect(asset_manager_call).to_not have_been_requested
     end
 
-    it "should log errors and put into an aborted state" do
+    it "should log individual errors and put asset into an aborted state" do
       whitehall_import = build(:whitehall_migration_document_import, assets: [asset])
       allow(asset).to receive(:whitehall_asset_id).and_raise(StandardError.new("Some error"))
-      described_class.call(whitehall_import)
+      expect { described_class.call(whitehall_import) }.to raise_error "Failed migrating at least one Whitehall asset"
       expect(asset.state).to eq("migration_failed")
       expect(asset.error_message).to include("Some error")
+    end
+
+    it "should attempt to migrate all assets and raise error only at the end" do
+      bad_asset = build(:whitehall_migration_asset_import)
+      allow(bad_asset).to receive(:whitehall_asset_id).and_raise(StandardError.new)
+      whitehall_import = build(:whitehall_migration_document_import, assets: [bad_asset, asset])
+
+      expect { described_class.call(whitehall_import) }
+        .to raise_error "Failed migrating at least one Whitehall asset"
+      expect(bad_asset.state).to eq("migration_failed")
+      expect(asset.state).to eq("removed") # draft asset removed - success
     end
 
     it "should delete draft assets" do
