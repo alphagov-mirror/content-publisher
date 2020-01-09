@@ -86,7 +86,7 @@ module WhitehallImporter
 
       unless integrity_checker.valid?
         state = edition.live? ? "live" : "draft"
-        raise WhitehallImporter::IntegrityCheckError.new(state, integrity_checker.problems, integrity_checker.proposed_payload)
+        raise WhitehallImporter::IntegrityCheckError.new(state, integrity_checker)
       end
     end
   end
