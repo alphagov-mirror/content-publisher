@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_07_151448) do
+ActiveRecord::Schema.define(version: 2020_01_09_094012) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -358,6 +358,8 @@ ActiveRecord::Schema.define(version: 2020_01_07_151448) do
     t.datetime "updated_at", null: false
     t.bigint "document_id"
     t.bigint "whitehall_migration_id"
+    t.string "integrity_check_problems", default: [], null: false, array: true
+    t.json "integrity_check_proposed_payload", default: "{}", null: false
   end
 
   create_table "whitehall_migrations", force: :cascade do |t|
