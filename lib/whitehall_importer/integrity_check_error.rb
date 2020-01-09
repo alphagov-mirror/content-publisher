@@ -6,7 +6,7 @@ module WhitehallImporter
 
     def initialize(state, integrity_check)
       @problems = integrity_check.problems
-      @payload = integrity_check.payload
+      @payload = integrity_check.proposed_payload
       super("#{state.titleize} integrity check failed")
     end
   end
