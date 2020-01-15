@@ -68,7 +68,7 @@ class DocumentsController < ApplicationController
 
   def generate_path
     edition = Edition.find_current(document: params[:document])
-    base_path = PathGeneratorService.call(edition.document, params[:title])
+    base_path = GenerateBasePathService.call(edition.document, params[:title])
     render plain: base_path
   end
 
