@@ -54,8 +54,8 @@ module WhitehallImporter
         ),
         tags_revision: TagsRevision.new(
           tags: {
-            "primary_publishing_organisation" => primary_publishing_organisation(whitehall_edition["organisations"]),
-            "organisations" => supporting_organisations(whitehall_edition["organisations"]),
+            "primary_publishing_organisation" => primary_publishing_organisation,
+            "organisations" => supporting_organisations,
             "role_appointments" => tags(whitehall_edition["role_appointments"]),
             "topical_events" => tags(whitehall_edition["topical_events"]),
             "world_locations" => tags(whitehall_edition["world_locations"]),
@@ -82,30 +82,34 @@ module WhitehallImporter
       @translation || raise(AbortImportError, "Translation #{document.locale} missing")
     end
 
-    def primary_publishing_organisation(organisations)
-      unless organisations
+    def primary_publishing_organisation
+      unless whitehall_edition["organisations"]
         raise AbortImportError, "Must have at least one organisation"
-      end
-
-      primary_publishing_organisations = organisations.select do |organisation|
-        organisation["lead"]
       end
 
       unless primary_publishing_organisations.any?
         raise AbortImportError, "Lead organisation missing"
       end
 
-      primary_publishing_organisation = primary_publishing_organisations.min { |o| o["lead_ordering"] }
-
-      [primary_publishing_organisation["content_id"]]
+      [first_lead_organisation["content_id"]]
     end
 
-    def supporting_organisations(organisations)
-      supporting_organisations = organisations.reject do |organisation|
-        organisation["lead"]
+    def supporting_organisations
+      supporting_organisations = whitehall_edition["organisations"].reject do |organisation|
+        first_lead_organisation == organisation
       end
 
       supporting_organisations.map { |organisation| organisation["content_id"] }
+    end
+
+    def primary_publishing_organisations
+      whitehall_edition["organisations"].select do |organisation|
+        organisation["lead"]
+      end
+    end
+
+    def first_lead_organisation
+      @first_lead_organisation ||= primary_publishing_organisations.min { |o| o["lead_ordering"] }
     end
 
     def tags(associations)
