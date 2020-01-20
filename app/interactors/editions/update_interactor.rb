@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Documents::UpdateInteractor < ApplicationInteractor
+class Editions::UpdateInteractor < ApplicationInteractor
   delegate :params,
            :user,
            :edition,
