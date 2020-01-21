@@ -86,12 +86,14 @@ class TimelineEntry < ApplicationRecord
                                revision: nil,
                                edition:,
                                details: nil,
+                               created_at: Time.current,
                                created_by: nil)
 
     revision = revision || edition.revision
     creator = created_by || revision.created_by
 
     create!(entry_type: entry_type,
+            created_at: created_at,
             created_by: creator,
             revision: revision,
             edition: edition,
