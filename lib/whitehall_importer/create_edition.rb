@@ -33,6 +33,8 @@ module WhitehallImporter
                   create_edition(status: status, current: current, edition_number: edition_number)
                 end
 
+      create_revision_history(edition)
+
       edition.tap { |e| access_limit(e) }
     end
 
@@ -175,6 +177,22 @@ module WhitehallImporter
       )
 
       edition.save!
+    end
+
+    def create_revision_history(edition)
+      whitehall_edition["revision_history"].each do |event|
+        details = TimelineEntry::WhitehallImportedEntry.create!(
+          entry_type: history.timeline_entry(event, edition_number),
+        )
+        TimelineEntry.create_for_revision(
+          entry_type: :whitehall_migration,
+          created_at: event["created_at"],
+          created_by: User.find_by(id: user_ids[event["whodunnit"]]),
+          revision: edition.revision,
+          edition: edition,
+          details: details,
+        )
+      end
     end
   end
 end
