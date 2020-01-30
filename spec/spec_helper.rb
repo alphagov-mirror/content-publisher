@@ -42,6 +42,11 @@ RSpec.configure do |config|
     Rails.application.load_seed
   end
 
+  config.before :all do
+    # This is required to clean up after multiple `build(:document_type)` calls
+    DocumentType.clear
+  end
+
   config.before :each do
     Sidekiq::Worker.clear_all
     ActionMailer::Base.deliveries.clear

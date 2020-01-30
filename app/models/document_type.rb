@@ -12,7 +12,9 @@ class DocumentType
   end
 
   def self.all
-    @all ||= begin
+    return @all if defined?(@all) && @all.present?
+
+    @all = begin
       hashes = YAML.load_file(Rails.root.join("config/document_types.yml"))
 
       hashes.map do |hash|
@@ -26,6 +28,10 @@ class DocumentType
         new(hash)
       end
     end
+  end
+
+  def self.clear
+    @all = nil
   end
 
   def managed_elsewhere_url
