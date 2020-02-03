@@ -12,7 +12,7 @@ RSpec.describe "News article format" do
     when_i_choose_this_document_type
     and_i_fill_in_the_form_fields
     and_i_add_some_tags
-    then_i_can_publish_the_document
+    then_the_document_should_be_publishable
   end
 
   def when_i_choose_this_document_type
@@ -27,49 +27,33 @@ RSpec.describe "News article format" do
   def and_i_fill_in_the_form_fields
     fill_in "revision[title]", with: "A great title"
     fill_in "revision[summary]", with: "A great summary"
+    fill_in "revision[contents][body]", with: "Some body content"
 
-    document = Document.first
     base_path = Edition.last.document_type.path_prefix + "/a-great-title"
-    stub_publishing_api_has_lookups(base_path => document.content_id)
+    stub_publishing_api_has_lookups(base_path => Document.last.content_id)
 
     click_on "Save"
-    reset_executed_requests!
   end
 
   def and_i_add_some_tags
-    stub_publishing_api_has_links(role_appointment_links)
-
-    expect(Edition.last.document_type.tags.count).to eq(5)
+    # need to stub all linkables even though we're only selecting one
     stub_publishing_api_has_linkables([linkable], document_type: "topical_event")
     stub_publishing_api_has_linkables([linkable], document_type: "world_location")
     stub_publishing_api_has_linkables([linkable], document_type: "organisation")
     stub_publishing_api_has_linkables([linkable], document_type: "role_appointment")
 
     click_on "Change Tags"
-
-    select linkable["internal_name"], from: "tags[topical_events][]"
-    select linkable["internal_name"], from: "tags[world_locations][]"
     select linkable["internal_name"], from: "tags[primary_publishing_organisation][]"
-    select linkable["internal_name"], from: "tags[organisations][]"
-    select linkable["internal_name"], from: "tags[role_appointments][]"
 
+    reset_executed_requests! # needed as we only care about the final request
     click_on "Save"
   end
 
-  def then_i_can_publish_the_document
+  def then_the_document_should_be_publishable
     expect(a_request(:put, /content/).with { |req|
              expect(req.body).to be_valid_against_publisher_schema("news_article")
            }).to have_been_requested
-  end
-
-  def role_appointment_links
-    @role_appointment_links ||= {
-      "content_id" => linkable["content_id"],
-      "links" => {
-        "person" => [SecureRandom.uuid],
-        "role" => [SecureRandom.uuid],
-      },
-    }
+    expect(page).to have_link("Publish", href: publish_confirmation_path(Document.last))
   end
 
   def linkable
