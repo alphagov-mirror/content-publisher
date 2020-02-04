@@ -1,0 +1,104 @@
+---
+- id: root
+  options:
+    - news
+    - guidance
+    - transparency
+    - policy
+    - document-collection:
+      label: Document collection
+      type: managed_elsewhere
+      hostname: whitehall-admin
+      path: /government/admin/collections/new
+    - corporate-information:
+      label: Corporate information
+      type: managed_elsewhere
+      hostname: whitehall-admin
+      path: /government/admin/organisations/government-digital-service/corporate_information_pages
+    - not-sure:
+      label: Not sure
+      type: managed_elsewhere
+      path: /documents/publishing-guidance
+
+- id: news
+  options:
+      - news_story:
+        label: News story
+        type: document_type
+      - press_release:
+        label: Press release
+        type: document_type
+      - fatality_notice:
+        label: Fatality notice
+        type: managed_elsewhere
+        hostname: whitehall-admin
+        path: /government/admin/fatalities/new
+      - speech:
+        label: Speech
+        type: managed_elsewhere
+        hostname: whitehall-admin
+        path: /government/admin/speeches/new
+      - world_news_story:
+        label: World news story
+        type: managed_elsewhere
+        hostname: whitehall-admin
+        path: /government/admin/news/new
+
+- id: guidance
+  options:
+      - detailed_guide:
+        label: Detailed guide
+        type: managed_elsewhere
+        hostname: whitehall-admin
+        path: /government/admin/detailed-guides/new
+      - any-whitehall-publication:
+        label: Publication
+        type: managed_elsewhere
+        hostname: whitehall-admin
+        path: /government/admin/publications/new
+      - manual:
+        label: Manual
+        type: managed_elsewhere
+        hostname: manuals-publisher
+        path: /
+      - any-mainstream-publication:
+        label: Mainstream guide
+        type: managed_elsewhere
+        hostname: support
+        path: /content_change_request/new
+      - travel_advice:
+        label: Travel advice
+        type: managed_elsewhere
+        hostname: travel-advice-publisher
+        path: /admin
+
+- id: transparency
+  options:
+    - any-whitehall-publication:
+      label: Publication
+      type: managed_elsewhere
+      hostname: whitehall-admin
+      path: /government/admin/publications/new
+    - statistical-data-set:
+      label: Statistical data set
+      type: managed_elsewhere
+      hostname: whitehall-admin
+      path: /government/admin/statistical-data-sets/new
+
+- id: policy
+  options:
+    - case_study:
+      label: Case study
+      type: managed_elsewhere
+      hostname: whitehall-admin
+      path: /government/admin/case-studies/new
+    - consultation:
+      label: Consultation
+      type: managed_elsewhere
+      hostname: whitehall-admin
+      path: /government/admin/consultations/new
+    - any-whitehall-publication:
+      label: Publication
+      type: managed_elsewhere
+      hostname: whitehall-admin
+      path: /government/admin/publications/new
