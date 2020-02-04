@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "schemas": {
+    "documentTypeSelection": {
+      "type": "object",
+      "required": [
+        "id",
+        "options"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "options": {
+          "$ref": "#/definitions/options"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "id": {
+      "type": "string",
+      "enum": [
+        "root",
+        "news",
+        "guidance",
+        "transparency",
+        "policy",
+        "document-collection",
+        "corporate-information",
+        "not-sure",
+        "news_story",
+        "press_release",
+        "fatality_notice",
+        "speech",
+        "world_news_story",
+        "detailed_guide",
+        "any-whitehall-publication",
+        "manual",
+        "any-mainstream-publication",
+        "travel_advice",
+        "statistical-data-set",
+        "case_study",
+        "consultation"
+      ]
+    },
+    "options": {
+      "type": "object",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/id"
+        },
+        {
+          "$ref": "#/definitions/documentType"
+        }
+      ]
+    },
+    "documentType": {
+      "type": "object",
+      "required": [
+        "label",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "$ref": "#/definitions/label"
+        },
+        "type": {
+          "$ref": "#/definitions/type"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "document_type",
+        "managed_elsewhere"
+      ]
+    }
+  }
+}
