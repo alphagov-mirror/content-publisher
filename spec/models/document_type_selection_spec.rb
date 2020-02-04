@@ -17,4 +17,10 @@ RSpec.describe DocumentTypeSelection do
       end
     end
   end
+
+  describe ".all" do
+    it "should create a DocumentType for each one in the YAML" do
+      expect(DocumentTypeSelection.all.count).to eq(document_type_selections.count)
+    end
+  end
 end
