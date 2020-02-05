@@ -15,6 +15,9 @@ class DocumentTypeSelection
       hashes = YAML.load_file(Rails.root.join("config/document_type_selections.yml"))
 
       hashes.map do |hash|
+        hash["options"].map do |option|
+          SelectionOption.new(option).hash
+        end
         new(hash)
       end
     end
@@ -25,4 +28,20 @@ class DocumentTypeSelection
       document_type_selection.options.include?(id)
     end
   end
+
+  class SelectionOption
+    attr_reader :option
+
+    def initialize(option)
+      @option = option
+    end
+
+    def hash
+      if option.is_a? String
+        {
+          id: option,
+          type: "refine"
+        }
+      end
+    end
 end

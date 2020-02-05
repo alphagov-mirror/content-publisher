@@ -55,4 +55,14 @@ RSpec.describe DocumentTypeSelection do
         .to eq(DocumentTypeSelection.find("root"))
     end
   end
+
+  describe "SelectionOption" do
+    it "creates a hash when the option is a string" do
+      expected_hash = {
+        id: "foo",
+        type: "refine"
+      }
+      expect(DocumentTypeSelection::SelectionOption.new("foo").hash).to eq(expected_hash)
+    end
+  end
 end
