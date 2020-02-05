@@ -68,12 +68,12 @@ RSpec.describe DocumentTypeSelection do
     it "sets the id correctly if option is an object" do
       option = {
         "foo" => nil,
-        "type" => "document_type"
+        "type" => "document_type",
       }
 
       expected_hash = {
         id: "foo",
-        type: "document_type"
+        type: "document_type",
       }
 
       expect(DocumentTypeSelection::SelectionOption.new(option).hash).to eq(expected_hash)

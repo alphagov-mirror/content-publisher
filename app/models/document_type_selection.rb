@@ -45,7 +45,7 @@ class DocumentTypeSelection
       else
         selection_option = {
           id: option.keys.first,
-          type: option["type"]
+          type: option["type"],
         }
 
         selection_option[:managed_elsewhere_url] = managed_elsewhere_url if option["type"] == "managed_elsewhere"
