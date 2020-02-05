@@ -6,14 +6,24 @@ RSpec.describe DocumentTypeSelection do
   let(:document_type_selections) { YAML.load_file(Rails.root.join("config/document_type_selections.yml")) }
 
   describe "all configured document types selections are valid" do
+    let(:document_type_selection_schema) { JSON.parse(File.read("config/schemas/document_type_selection.json")) }
+
     it "should conform to the document type selection schema" do
-      document_type_selection_schema = JSON.parse(File.read("config/schemas/document_type_selection.json"))
       document_type_selections.each do |document_type_selection|
         validator = JSON::Validator.fully_validate(document_type_selection_schema, document_type_selection)
         expect(validator).to(
           be_empty,
           "Validation for #{document_type_selection['id']} failed: \n\t#{validator.join("\n\t")}",
         )
+      end
+    end
+
+    it "should find the corresponding object for every string id in the options" do
+      document_type_selections.flat_map { |d| d["options"] }.each do |option|
+        if option.is_a? String
+          expect(DocumentTypeSelection.find(option))
+            .to be_a(DocumentTypeSelection)
+        end
       end
     end
   end
