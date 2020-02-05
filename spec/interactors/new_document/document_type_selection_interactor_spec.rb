@@ -2,7 +2,6 @@
 
 RSpec.describe NewDocument::DocumentTypeSelectionInteractor do
   describe ".call" do
-
     it "succeeds with valid paramaters" do
       result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "news" })
       expect(result).to be_success
