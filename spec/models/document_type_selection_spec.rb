@@ -78,5 +78,21 @@ RSpec.describe DocumentTypeSelection do
 
       expect(DocumentTypeSelection::SelectionOption.new(option).hash).to eq(expected_hash)
     end
+
+    it "return the managed_elsewhere_url if the type is managed_elsewhere" do
+      option = {
+        "foo" => nil,
+        "type" => "managed_elsewhere",
+        "path" => "/bar"
+      }
+
+      expected_hash = {
+        id: "foo",
+        type: "managed_elsewhere",
+        managed_elsewhere_url: "/bar"
+      }
+
+      expect(DocumentTypeSelection::SelectionOption.new(option).hash).to eq(expected_hash)
+    end
   end
 end

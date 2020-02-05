@@ -43,10 +43,23 @@ class DocumentTypeSelection
           type: "refine"
         }
       else
-        {
+        selection_option = {
           id: option.keys.first,
           type: option["type"]
         }
+
+        selection_option[:managed_elsewhere_url] = managed_elsewhere_url if option["type"] == "managed_elsewhere"
+
+        selection_option
       end
     end
+
+    def managed_elsewhere_url
+      if option["hostname"]
+        Plek.new.external_url_for(option.fetch("hostname")) + option.fetch("path")
+      else
+        option["path"]
+      end
+    end
+  end
 end
