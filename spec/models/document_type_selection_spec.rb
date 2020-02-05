@@ -60,7 +60,7 @@ RSpec.describe DocumentTypeSelection do
     it "creates a hash when the option is a string" do
       expected_hash = {
         id: "foo",
-        type: "refine"
+        type: "refine",
       }
       expect(DocumentTypeSelection::SelectionOption.new("foo").hash).to eq(expected_hash)
     end

@@ -40,7 +40,7 @@ class DocumentTypeSelection
       if option.is_a? String
         {
           id: option,
-          type: "refine"
+          type: "refine",
         }
       else
         selection_option = {
