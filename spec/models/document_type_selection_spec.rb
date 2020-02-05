@@ -23,4 +23,15 @@ RSpec.describe DocumentTypeSelection do
       expect(DocumentTypeSelection.all.count).to eq(document_type_selections.count)
     end
   end
+
+  describe ".find" do
+    it "should return the hash of the corresponding DocumentTypeSelection" do
+      expect(DocumentTypeSelection.find("news")).to be_a(DocumentTypeSelection)
+    end
+
+    it "raises a RuntimeError when there is no corresponding entry for the id" do
+      expect { DocumentTypeSelection.find("unknown_document_type") }
+        .to raise_error(RuntimeError, "Document type selection unknown_document_type not found")
+    end
+  end
 end
