@@ -27,7 +27,6 @@ private
   end
 
   def find_document_type_selection_option
-    byebug
     context.document_type_selection_option = DocumentTypeSelection.find(params[:document_type_selection_id]).options[params[:selected_option_id]]
   end
 
