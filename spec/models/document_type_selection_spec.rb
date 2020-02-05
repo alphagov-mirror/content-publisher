@@ -83,13 +83,13 @@ RSpec.describe DocumentTypeSelection do
       option = {
         "foo" => nil,
         "type" => "managed_elsewhere",
-        "path" => "/bar"
+        "path" => "/bar",
       }
 
       expected_hash = {
         id: "foo",
         type: "managed_elsewhere",
-        managed_elsewhere_url: "/bar"
+        managed_elsewhere_url: "/bar",
       }
 
       expect(DocumentTypeSelection::SelectionOption.new(option).hash).to eq(expected_hash)
