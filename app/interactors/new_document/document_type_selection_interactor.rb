@@ -27,7 +27,10 @@ private
   end
 
   def find_document_type_selection_option
-    context.document_type_selection_option = DocumentTypeSelection.find(params[:document_type_selection_id]).options[params[:selected_option_id]]
+    context.document_type_selection_option = DocumentTypeSelection
+                                               .find(params[:document_type_selection_id])
+                                               .options
+                                               .select { |option| option[:id] == params[:selected_option_id] }
   end
 
   # def route_the_thing
