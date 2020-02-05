@@ -19,4 +19,10 @@ class DocumentTypeSelection
       end
     end
   end
+
+  def parent
+    self.class.all.find do |document_type_selection|
+      document_type_selection.options.include?(id)
+    end
+  end
 end

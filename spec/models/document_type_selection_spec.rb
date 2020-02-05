@@ -34,4 +34,15 @@ RSpec.describe DocumentTypeSelection do
         .to raise_error(RuntimeError, "Document type selection unknown_document_type not found")
     end
   end
+
+  describe ".parent" do
+    it "should return nil if we pass it 'root'" do
+      expect(DocumentTypeSelection.find("root").parent).to be_nil
+    end
+
+    it "should return a DocumentTypeSelection for the parent if it exists" do
+      expect(DocumentTypeSelection.find("news").parent)
+        .to eq(DocumentTypeSelection.find("root"))
+    end
+  end
 end
