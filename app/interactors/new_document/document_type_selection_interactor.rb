@@ -34,7 +34,7 @@ private
   end
 
   # def route_the_thing
-  #   if context.document_type_selection_option.is_a? String
+  #   if context.document_type_selection_option["type"] == "refine"
   #   elsif context.document_type_selection_option["type"] == "managed_elsewhere"
   #   elsif context.document_type_selection_option["type"] == "document_type"
   #   end
