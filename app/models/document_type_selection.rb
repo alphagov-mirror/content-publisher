@@ -15,7 +15,7 @@ class DocumentTypeSelection
       hashes = YAML.load_file(Rails.root.join("config/document_type_selections.yml"))
 
       hashes.map do |hash|
-        hash["options"].map do |option|
+        hash["options"].map! do |option|
           SelectionOption.new(option).hash
         end
         new(hash)
@@ -25,7 +25,7 @@ class DocumentTypeSelection
 
   def parent
     self.class.all.find do |document_type_selection|
-      document_type_selection.options.include?(id)
+      document_type_selection.options.pluck(:id).include?(id)
     end
   end
 
