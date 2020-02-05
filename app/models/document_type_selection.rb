@@ -42,6 +42,11 @@ class DocumentTypeSelection
           id: option,
           type: "refine"
         }
+      else
+        {
+          id: option.keys.first,
+          type: option["type"]
+        }
       end
     end
 end
