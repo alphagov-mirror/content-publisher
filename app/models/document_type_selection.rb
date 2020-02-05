@@ -15,12 +15,6 @@ class DocumentTypeSelection
       hashes = YAML.load_file(Rails.root.join("config/document_type_selections.yml"))
 
       hashes.map do |hash|
-        ## Add methods loops through the options and normalises them e.g.
-        # {
-        #     id: "news_story",
-        #     type: "managed_elsewhere"
-        #     managed_elsewhere_url: "http://foo"
-        # }
         new(hash)
       end
     end
