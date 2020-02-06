@@ -34,10 +34,18 @@ RSpec.describe NewDocument::DocumentTypeSelectionInteractor do
       expect(result.redirect_url).to eq("/documents/publishing-guidance")
     end
 
-    it "creates a new document" do
-      expect { NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "news", selected_option_id: "news_story" }, user: user) }
-        .to change { Document.count }
-        .by(1)
+    context "when the selected document type doesn't have subtypes and can be created" do
+      it "creates a new document" do
+        expect { NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "news", selected_option_id: "news_story" }, user: user) }
+          .to change { Document.count }
+          .by(1)
+      end
+
+      it "creates a timeline entry" do
+        expect { NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "news", selected_option_id: "news_story" }, user: user) }
+          .to change { TimelineEntry.count }
+          .by(1)
+      end
     end
   end
 end
