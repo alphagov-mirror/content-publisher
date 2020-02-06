@@ -11,13 +11,10 @@ class NewDocument::DocumentTypeSelectionInteractor < ApplicationInteractor
 
   def call
     check_for_issues
+    check_for_subtypes
+    find_redirect_url
 
-    case selected_option.type
-    when "subtypes"
-      context.needs_refining = true
-    when "managed_elsewhere"
-      context.redirect_url = selected_option.managed_elsewhere_url
-    when "document_type"
+    if create_document?
       create_document
       create_timeline_entry
     end
@@ -35,6 +32,18 @@ private
     Requirements::CheckerIssues.new([
       Requirements::Issue.new(:selected_option_id, :not_selected),
     ])
+  end
+
+  def check_for_subtypes
+    context.needs_refining = true if selected_option.subtypes?
+  end
+
+  def find_redirect_url
+    context.redirect_url = selected_option.managed_elsewhere_url
+  end
+
+  def create_document?
+    selected_option.type == "document_type"
   end
 
   def selected_option
