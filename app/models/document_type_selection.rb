@@ -37,7 +37,15 @@ class DocumentTypeSelection
     end
 
     def id
-      option.is_a?(String) ? option : option.keys.first
+      subtypes? ? option : option.keys.first
+    end
+
+    def type
+      subtypes? ? "subtypes" : option["type"]
+    end
+
+    def subtypes?
+      option.is_a?(String)
     end
 
     def hash

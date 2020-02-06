@@ -109,5 +109,20 @@ RSpec.describe DocumentTypeSelection do
         expect(DocumentTypeSelection::SelectionOption.new(option).id).to eq("foo")
       end
     end
+
+    describe ".type" do
+      it "sets the type to subtypes when the option has sub types" do
+        expect(DocumentTypeSelection::SelectionOption.new("foo").type).to eq("subtypes")
+      end
+
+      it "returns the type when the option is an object" do
+        option = {
+          "foo" => nil,
+          "type" => "document_type",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).id).to eq("foo")
+      end
+    end
   end
 end
