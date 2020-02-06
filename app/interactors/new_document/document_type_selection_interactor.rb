@@ -53,17 +53,13 @@ private
 
   def create_document
     context.document = CreateDocumentService.call(
-      document_type_id: document_type, tags: default_tags, user: user,
+      document_type_id: document_type_id, tags: default_tags, user: user,
     )
   end
 
   def create_timeline_entry
     TimelineEntry.create_for_status_change(entry_type: :created,
                                            status: document.current_edition.status)
-  end
-
-  def document_type
-    selected_option[:id]
   end
 
   def default_tags

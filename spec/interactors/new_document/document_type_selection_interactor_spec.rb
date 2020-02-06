@@ -2,6 +2,8 @@
 
 RSpec.describe NewDocument::DocumentTypeSelectionInteractor do
   describe ".call" do
+    let(:user) { build(:user, organisation_content_id: "org-id") }
+
     it "succeeds with valid paramaters" do
       result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "news" })
       expect(result).to be_success
@@ -30,6 +32,12 @@ RSpec.describe NewDocument::DocumentTypeSelectionInteractor do
     it "returns the redirect url if the selected document type is mananged elsewhere" do
       result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "not-sure" })
       expect(result.redirect_url).to eq("/documents/publishing-guidance")
+    end
+
+    it "creates a new document" do
+      expect { NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "news", selected_option_id: "news_story" }, user: user) }
+        .to change { Document.count }
+        .by(1)
     end
   end
 end
