@@ -16,7 +16,7 @@ class DocumentTypeSelection
 
       hashes.map do |hash|
         hash["options"].map! do |option|
-          SelectionOption.new(option).hash
+          SelectionOption.new(option)
         end
         new(hash)
       end
@@ -25,7 +25,7 @@ class DocumentTypeSelection
 
   def parent
     self.class.all.find do |document_type_selection|
-      document_type_selection.options.pluck(:id).include?(id)
+      document_type_selection.options.map(&:id).include?(id)
     end
   end
 
@@ -50,24 +50,6 @@ class DocumentTypeSelection
 
     def subtypes?
       option.is_a?(String)
-    end
-
-    def hash
-      if option.is_a? String
-        {
-          id: option,
-          type: "subtypes",
-        }
-      else
-        selection_option = {
-          id: option.keys.first,
-          type: option["type"],
-        }
-
-        selection_option[:managed_elsewhere_url] = managed_elsewhere_url if option["type"] == "managed_elsewhere"
-
-        selection_option
-      end
     end
 
     def managed_elsewhere_url

@@ -57,44 +57,6 @@ RSpec.describe DocumentTypeSelection do
   end
 
   describe "SelectionOption" do
-    it "creates a hash when the option is a string" do
-      expected_hash = {
-        id: "foo",
-        type: "subtypes",
-      }
-      expect(DocumentTypeSelection::SelectionOption.new("foo").hash).to eq(expected_hash)
-    end
-
-    it "sets the id correctly if option is an object" do
-      option = {
-        "foo" => nil,
-        "type" => "document_type",
-      }
-
-      expected_hash = {
-        id: "foo",
-        type: "document_type",
-      }
-
-      expect(DocumentTypeSelection::SelectionOption.new(option).hash).to eq(expected_hash)
-    end
-
-    it "return the managed_elsewhere_url if the type is managed_elsewhere" do
-      option = {
-        "foo" => nil,
-        "type" => "managed_elsewhere",
-        "path" => "/bar",
-      }
-
-      expected_hash = {
-        id: "foo",
-        type: "managed_elsewhere",
-        managed_elsewhere_url: "/bar",
-      }
-
-      expect(DocumentTypeSelection::SelectionOption.new(option).hash).to eq(expected_hash)
-    end
-
     describe ".id" do
       it "returns the id when the option has sub types" do
         expect(DocumentTypeSelection::SelectionOption.new("foo").id).to eq("foo")
