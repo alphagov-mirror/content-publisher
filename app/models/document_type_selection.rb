@@ -53,11 +53,17 @@ class DocumentTypeSelection
     end
 
     def managed_elsewhere_url
+      return unless managed_elsewhere?
+
       if option["hostname"]
         Plek.new.external_url_for(option.fetch("hostname")) + option.fetch("path")
       else
         option["path"]
       end
+    end
+
+    def managed_elsewhere?
+      type == "managed_elsewhere"
     end
   end
 end

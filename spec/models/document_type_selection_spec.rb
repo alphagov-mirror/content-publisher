@@ -105,6 +105,16 @@ RSpec.describe DocumentTypeSelection do
     describe ".managed_elsewhere_url" do
       let(:whitehall_host) { Plek.new.external_url_for("whitehall-admin") }
 
+      it "returns nil if the type is not managed_elsewhere" do
+        option = {
+          "foo" => nil,
+          "type" => "document_type",
+          "path" => "/bar",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).managed_elsewhere_url).to be nil
+      end
+
       it "returns the path if a hostname is not provided" do
         option = {
           "foo" => nil,
