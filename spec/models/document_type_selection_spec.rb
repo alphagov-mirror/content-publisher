@@ -164,5 +164,20 @@ RSpec.describe DocumentTypeSelection do
         expect(DocumentTypeSelection::SelectionOption.new(option).managed_elsewhere_url).to eq("#{whitehall_host}/bar")
       end
     end
+
+    describe ".subtypes?" do
+      it "returns true when the option is a string" do
+        expect(DocumentTypeSelection::SelectionOption.new("foo").subtypes?).to be true
+      end
+
+      it "returns false when the option is an object" do
+        option = {
+          "foo" => nil,
+          "type" => "document_type",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).subtypes?).to be false
+      end
+    end
   end
 end
