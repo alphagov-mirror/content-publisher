@@ -6,6 +6,7 @@ class NewDocument::DocumentTypeSelectionInteractor < ApplicationInteractor
            :document_type_id,
            :redirect_url,
            :document,
+           :has_subtypes,
            to: :context
 
 
@@ -14,8 +15,8 @@ class NewDocument::DocumentTypeSelectionInteractor < ApplicationInteractor
     find_selected_document_type
 
     case selected_option[:type]
-    when "refine"
-      context.document_type_id == document_type
+    when "subtypes"
+      context.has_subtypes = true
     when "managed_elsewhere"
       context.redirect_url = selected_option[:managed_elsewhere_url]
     when "document_type"

@@ -21,5 +21,10 @@ RSpec.describe NewDocument::DocumentTypeSelectionInteractor do
       result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "news" })
       expect(result.document_type_id).to eq("news")
     end
+
+    it "returns whether the selected option has subtypes" do
+      result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "news" })
+      expect(result.has_subtypes).to be true
+    end
   end
 end
