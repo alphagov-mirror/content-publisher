@@ -124,5 +124,20 @@ RSpec.describe DocumentTypeSelection do
         expect(DocumentTypeSelection::SelectionOption.new(option).id).to eq("foo")
       end
     end
+
+    describe ".label" do
+      it "sets the label to the capitalised option name when the option has sub types" do
+        expect(DocumentTypeSelection::SelectionOption.new("foo").label).to eq("Foo")
+      end
+
+      it "returns the type when the option is an object" do
+        option = {
+          "foo" => nil,
+          "label" => "Foo type",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).label).to eq("Foo type")
+      end
+    end
   end
 end

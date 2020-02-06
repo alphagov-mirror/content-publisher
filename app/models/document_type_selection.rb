@@ -44,6 +44,10 @@ class DocumentTypeSelection
       subtypes? ? "subtypes" : option["type"]
     end
 
+    def label
+      subtypes? ? option.titleize : option["label"]
+    end
+
     def subtypes?
       option.is_a?(String)
     end
