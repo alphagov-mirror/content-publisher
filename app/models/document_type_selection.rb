@@ -36,6 +36,10 @@ class DocumentTypeSelection
       @option = option
     end
 
+    def id
+      option.is_a?(String) ? option : option.keys.first
+    end
+
     def hash
       if option.is_a? String
         {

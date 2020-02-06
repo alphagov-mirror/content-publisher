@@ -94,5 +94,20 @@ RSpec.describe DocumentTypeSelection do
 
       expect(DocumentTypeSelection::SelectionOption.new(option).hash).to eq(expected_hash)
     end
+
+    describe ".id" do
+      it "returns the id when the option has sub types" do
+        expect(DocumentTypeSelection::SelectionOption.new("foo").id).to eq("foo")
+      end
+
+      it "returns the option key, if the option is an object" do
+        option = {
+          "foo" => nil,
+          "type" => "document_type",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).id).to eq("foo")
+      end
+    end
   end
 end
