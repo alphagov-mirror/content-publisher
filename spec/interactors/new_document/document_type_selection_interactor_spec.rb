@@ -26,7 +26,7 @@ RSpec.describe NewDocument::DocumentTypeSelectionInteractor do
 
     it "returns whether the selected option has subtypes" do
       result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "news" })
-      expect(result.has_subtypes).to be true
+      expect(result.needs_refining).to be true
     end
 
     it "returns the redirect url if the selected document type is mananged elsewhere" do
