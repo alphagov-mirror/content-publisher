@@ -3,7 +3,6 @@
 class NewDocument::DocumentTypeSelectionInteractor < ApplicationInteractor
   delegate :params,
            :user,
-           :document_type_id,
            :redirect_url,
            :document,
            :needs_refining,
@@ -12,7 +11,6 @@ class NewDocument::DocumentTypeSelectionInteractor < ApplicationInteractor
 
   def call
     check_for_issues
-    find_selected_document_type
 
     case selected_option.type
     when "subtypes"
@@ -39,10 +37,6 @@ private
     ])
   end
 
-  def find_selected_document_type
-    context.document_type_id = selected_option.id
-  end
-
   def selected_option
     @selected_option ||= DocumentTypeSelection
       .find(params[:document_type_selection_id])
@@ -53,7 +47,7 @@ private
 
   def create_document
     context.document = CreateDocumentService.call(
-      document_type_id: document_type_id, tags: default_tags, user: user,
+      document_type_id: params[:selected_option_id], tags: default_tags, user: user,
     )
   end
 
