@@ -11,6 +11,7 @@ class NewDocument::DocumentTypeSelectionInteractor < ApplicationInteractor
 
   def call
     check_for_issues
+    find_selected_document_type
 
     case selected_option[:type]
     when "refine"
@@ -35,6 +36,10 @@ private
     Requirements::CheckerIssues.new([
       Requirements::Issue.new(:selected_option_id, :not_selected),
     ])
+  end
+
+  def find_selected_document_type
+    context.document_type_id = selected_option[:id]
   end
 
   def selected_option
