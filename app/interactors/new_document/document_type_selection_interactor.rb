@@ -12,8 +12,8 @@ class NewDocument::DocumentTypeSelectionInteractor < ApplicationInteractor
 
 
   def call
-    check_for_issues
     find_previous_selection
+    check_for_issues
     find_current_selection
     check_for_subtypes
     find_redirect_url
