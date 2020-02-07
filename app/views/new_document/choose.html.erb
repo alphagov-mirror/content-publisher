@@ -1,0 +1,31 @@
+<% content_for :browser_title, "#{@document_type_selection.id.titleize}" %>
+<% content_for :back_link, render_back_link(href: new_document_path(@document_type_selection.parent)) %>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <%= form_tag select_path, data: { gtm: "confirm-document-type" } do %>
+      <%= render "govuk_publishing_components/components/radio", {
+        heading: "#{@document_type_selection.id.titleize}",
+        is_page_heading: true,
+        name: "selected_option_id",
+        error_items: @issues&.items_for(:selected_option_id),
+        items: @document_type_selection.options.map { |option|
+          {
+            value: option.id,
+            text: option.label,
+            hint_text: nil,
+            data_attributes: {
+              gtm: "choose-document-type",
+              "gtm-value": option.label,
+            },
+            conditional: nil,
+            bold: true,
+          }
+        }
+      } %>
+
+      <%= hidden_field(nil, :document_type_selection_id, value: @document_type_selection.id) %>
+      <%= render "govuk_publishing_components/components/button", text: "Continue", margin_bottom: true %>
+    <% end %>
+  </div>
+</div>
