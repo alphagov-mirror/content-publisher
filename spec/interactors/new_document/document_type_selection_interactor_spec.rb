@@ -19,6 +19,20 @@ RSpec.describe NewDocument::DocumentTypeSelectionInteractor do
       expect(result).to_not be_success
     end
 
+    it "returns the previously selected document type selection" do
+      previous_selection = DocumentTypeSelection.find("root")
+
+      result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "news" })
+      expect(result.previous_selection.id).to eq(previous_selection.id)
+    end
+
+    it "returns the current document type selection" do
+      current_selection = DocumentTypeSelection.find("news")
+
+      result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "news" })
+      expect(result.current_selection.id).to eq(current_selection.id)
+    end
+
     it "returns whether the selected option has subtypes" do
       result = NewDocument::DocumentTypeSelectionInteractor.call(params: { document_type_selection_id: "root", selected_option_id: "news" })
       expect(result.needs_refining).to be true
