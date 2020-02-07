@@ -6,11 +6,15 @@ class NewDocument::DocumentTypeSelectionInteractor < ApplicationInteractor
            :redirect_url,
            :document,
            :needs_refining,
+           :current_selection,
+           :previous_selection,
            to: :context
 
 
   def call
     check_for_issues
+    find_previous_selection
+    find_current_selection
     check_for_subtypes
     find_redirect_url
 
@@ -42,13 +46,22 @@ private
     context.redirect_url = selected_option.managed_elsewhere_url
   end
 
+  def find_current_selection
+    if selected_option.subtypes?
+      context.current_selection = DocumentTypeSelection.find(params[:selected_option_id])
+    end
+  end
+
+  def find_previous_selection
+    context.previous_selection = DocumentTypeSelection.find(params[:document_type_selection_id])
+  end
+
   def create_document?
     selected_option.type == "document_type"
   end
 
   def selected_option
-    @selected_option ||= DocumentTypeSelection
-      .find(params[:document_type_selection_id])
+    @selected_option ||= previous_selection
       .options
       .select { |option| option.id == params[:selected_option_id] }
       .first

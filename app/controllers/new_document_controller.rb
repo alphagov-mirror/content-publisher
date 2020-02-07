@@ -42,21 +42,23 @@ class NewDocumentController < ApplicationController
 
   def select
     result = NewDocument::DocumentTypeSelectionInteractor.call(params: params, user: current_user)
-    issues, document, redirect_url, needs_refining, = result.to_h.values_at(:issues,
-                                                                            :document,
-                                                                            :redirect_url,
-                                                                            :needs_refining)
+    issues, document, redirect_url, needs_refining, previous_selection, current_selection = result.to_h.values_at(
+      :issues,
+      :document,
+      :redirect_url,
+      :needs_refining,
+      :previous_selection,
+      :current_selection,
+    )
 
     if issues
       flash.now["requirements"] = { "items" => issues.items }
-      document_type_selection = DocumentTypeSelection.find(params[:document_type_selection_id])
       render :choose,
-             assigns: { issues: issues, document_type_selection: document_type_selection },
+             assigns: { issues: issues, document_type_selection: previous_selection },
              status: :unprocessable_entity
     elsif needs_refining
-      document_type_selection = DocumentTypeSelection.find(params[:selected_option_id])
       render :choose,
-             assigns: { issues: issues, document_type_selection: document_type_selection }
+             assigns: { issues: issues, document_type_selection: current_selection }
     elsif redirect_url
       redirect_to redirect_url
     else
