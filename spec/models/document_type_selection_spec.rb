@@ -36,7 +36,7 @@ RSpec.describe DocumentTypeSelection do
 
   describe ".find" do
     it "should return the hash of the corresponding DocumentTypeSelection" do
-      expect(DocumentTypeSelection.find("news")).to be_a(DocumentTypeSelection)
+      expect(DocumentTypeSelection.find(option_with_subtypes)).to be_a(DocumentTypeSelection)
     end
 
     it "raises a RuntimeError when there is no corresponding entry for the id" do
@@ -51,7 +51,7 @@ RSpec.describe DocumentTypeSelection do
     end
 
     it "should return a DocumentTypeSelection for the parent if it exists" do
-      expect(DocumentTypeSelection.find("news").parent)
+      expect(DocumentTypeSelection.find(option_with_subtypes).parent)
         .to eq(DocumentTypeSelection.find("root"))
     end
   end
@@ -151,5 +151,13 @@ RSpec.describe DocumentTypeSelection do
         expect(DocumentTypeSelection::SelectionOption.new(option).subtypes?).to be false
       end
     end
+  end
+
+  def option_with_subtypes(option_id = "root")
+    document_type_selections
+      .select { |selection| selection["id"] == option_id }
+      .first["options"]
+      .select { |option| option.is_a? String }
+      .first
   end
 end
