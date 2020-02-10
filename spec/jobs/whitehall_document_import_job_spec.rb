@@ -26,7 +26,7 @@ RSpec.describe WhitehallDocumentImportJob do
     allow(WhitehallImporter::Sync).to receive(:call)
                                   .and_return(completed_document_import)
     allow(whitehall_migration).to receive(:check_migration_finished)
-    stub_whitehall_api_unlock_document(
+    stub_whitehall_unlock_document(
       whitehall_migration_document_import.whitehall_document_id,
     )
   end
@@ -56,7 +56,7 @@ RSpec.describe WhitehallDocumentImportJob do
     end
 
     it "unlocks the document in Whitehall" do
-      request = stub_whitehall_api_unlock_document(
+      request = stub_whitehall_unlock_document(
         whitehall_migration_document_import.whitehall_document_id,
       )
 
@@ -80,7 +80,7 @@ RSpec.describe WhitehallDocumentImportJob do
     end
 
     it "does not unlock the document in Whitehall" do
-      request = stub_whitehall_api_unlock_document(
+      request = stub_whitehall_unlock_document(
         imported_document_import.whitehall_document_id,
       )
 
@@ -122,7 +122,7 @@ RSpec.describe WhitehallDocumentImportJob do
     let(:error) { StandardError.new }
     before do
       allow(WhitehallImporter::Import).to receive(:call).and_raise(error)
-      stub_whitehall_api_unlock_document(
+      stub_whitehall_unlock_document(
         whitehall_migration_document_import.whitehall_document_id,
       )
     end
@@ -186,7 +186,7 @@ RSpec.describe WhitehallDocumentImportJob do
     let(:error) { GdsApi::BaseError.new }
     before do
       allow(WhitehallImporter::Import).to receive(:call).and_raise("import error")
-      stub_whitehall_api_unlock_document_error(
+      stub_whitehall_unlock_document_error(
         whitehall_migration_document_import.whitehall_document_id, error
       )
     end
@@ -202,11 +202,11 @@ RSpec.describe WhitehallDocumentImportJob do
     end
   end
 
-  def stub_whitehall_api_unlock_document(document_id)
+  def stub_whitehall_unlock_document(document_id)
     stub_request(:post, "#{whitehall_host}/government/admin/export/document/#{document_id}/unlock")
   end
 
-  def stub_whitehall_api_unlock_document_error(document_id, error)
+  def stub_whitehall_unlock_document_error(document_id, error)
     stub_request(:post, "#{whitehall_host}/government/admin/export/document/#{document_id}/unlock")
       .to_raise(error)
   end

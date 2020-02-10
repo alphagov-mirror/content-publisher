@@ -7,10 +7,10 @@ RSpec.describe GdsApi::WhitehallExport do
 
   describe "document_list" do
     it "iterates through the correct number of pages" do
-      first_page = stub_whitehall_api_has_document_index(
+      first_page = stub_whitehall_has_document_index(
         document_id, "news_article", %w(news_story press_release), 1, 100
       )
-      second_page = stub_whitehall_api_has_document_index(
+      second_page = stub_whitehall_has_document_index(
         document_id, "news_article", %w(news_story press_release), 2, 10
       )
       whitehall_document_list = whitehall_adapter.document_list(
@@ -80,7 +80,7 @@ RSpec.describe GdsApi::WhitehallExport do
     end
   end
 
-  def stub_whitehall_api_has_document_index(lead_organisation, document_type, document_subtypes, page_number, items_on_page)
+  def stub_whitehall_has_document_index(lead_organisation, document_type, document_subtypes, page_number, items_on_page)
     whitehall_host = Plek.new.external_url_for("whitehall-admin")
     stub_request(:get, "#{whitehall_host}/government/admin/export/document").
       with(query: hash_including(
