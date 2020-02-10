@@ -36,7 +36,7 @@ class NewDocumentController < ApplicationController
     end
   end
 
-  def choose
+  def show
     @document_type_selection = DocumentTypeSelection.find(params[:selected_option_id] || "root")
   end
 
@@ -53,11 +53,11 @@ class NewDocumentController < ApplicationController
 
     if issues
       flash.now["requirements"] = { "items" => issues.items }
-      render :choose,
+      render :show,
              assigns: { issues: issues, document_type_selection: previous_selection },
              status: :unprocessable_entity
     elsif needs_refining
-      render :choose,
+      render :show,
              assigns: { issues: issues, document_type_selection: current_selection }
     elsif redirect_url
       redirect_to redirect_url

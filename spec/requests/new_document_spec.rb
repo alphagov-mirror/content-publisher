@@ -64,15 +64,15 @@ RSpec.describe "New Document" do
     end
   end
 
-  describe "GET /documents/choose" do
+  describe "GET /documents/show" do
     it "shows the root document type selection when no selection has been made" do
-      get choose_path
+      get show_path
       expect(response).to have_http_status(:ok)
       expect(response.body).to have_content("Root")
     end
 
     it "shows the page for the selected document type" do
-      get choose_path, params: { document_type_selection_id: "news" }
+      get show_path, params: { document_type_selection_id: "news" }
       expect(response).to have_http_status(:ok)
       expect(response.body).to have_content("News")
     end
