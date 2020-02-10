@@ -182,6 +182,26 @@ RSpec.describe WhitehallDocumentImportJob do
     end
   end
 
+  context "when the Whitehall unlock API call fails" do
+    let(:error) { GdsApi::BaseError.new }
+    before do
+      allow(WhitehallImporter::Import).to receive(:call).and_raise("import error")
+      stub_whitehall_api_unlock_document_error(
+        whitehall_migration_document_import.whitehall_document_id, error
+      )
+    end
+
+    it "updates the document import state to 'import_failed' and saves the errors" do
+      WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+
+      whitehall_migration_document_import.reload
+      expect(whitehall_migration_document_import).to be_import_failed
+      expect(whitehall_migration_document_import.error_log).to eq(
+        "#<RuntimeError: import error>, #{error.inspect}",
+      )
+    end
+  end
+
   def stub_whitehall_api_unlock_document(document_id)
     stub_request(:post, "#{whitehall_host}/government/admin/export/document/#{document_id}/unlock")
   end

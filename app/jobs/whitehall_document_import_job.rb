@@ -19,23 +19,31 @@ class WhitehallDocumentImportJob < ApplicationJob
   end
 
   def self.handle_error(document_import, error)
+    errors = [error.inspect]
+
     if document_import.pending?
-      GdsApi.whitehall_export.unlock_document(document_import.whitehall_document_id)
+      begin
+        GdsApi.whitehall_export.unlock_document(document_import.whitehall_document_id)
+      rescue GdsApi::BaseError => e
+        errors << e.inspect
+      end
     end
+
+    error_log = errors.join(", ")
 
     case error
     when WhitehallImporter::IntegrityCheckError
       document_import.update!(
-        error_log: error.inspect,
+        error_log: error_log,
         state: "import_aborted",
         integrity_check_problems: error.problems,
         integrity_check_proposed_payload: error.payload,
       )
     when WhitehallImporter::AbortImportError
-      document_import.update!(state: "import_aborted", error_log: error.inspect)
+      document_import.update!(state: "import_aborted", error_log: error_log)
     else
       state = document_import.imported? ? "sync_failed" : "import_failed"
-      document_import.update!(state: state, error_log: error.inspect)
+      document_import.update!(state: state, error_log: error_log)
     end
   end
 end
