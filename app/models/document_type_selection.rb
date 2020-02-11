@@ -39,19 +39,19 @@ class DocumentTypeSelection
     end
 
     def id
-      subtypes? ? option : option.keys.first
+      option.keys.first
     end
 
     def type
-      children? ? "subtypes" : option["type"]
+      option["type"]
     end
 
     def label
-      subtypes? ? option.titleize : option["label"]
+      option["label"]
     end
 
     def subtypes?
-      type == "subtypes"
+      type == "parent"
     end
 
     def managed_elsewhere_url
@@ -66,10 +66,6 @@ class DocumentTypeSelection
 
     def managed_elsewhere?
       type == "managed_elsewhere"
-    end
-
-    def children?
-      option.is_a?(String)
     end
   end
 end

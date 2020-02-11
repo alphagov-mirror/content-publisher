@@ -48,17 +48,6 @@
     },
     "options": {
       "type": "object",
-      "oneOf": [
-        {
-          "$ref": "#/definitions/id"
-        },
-        {
-          "$ref": "#/definitions/documentType"
-        }
-      ]
-    },
-    "documentType": {
-      "type": "object",
       "required": [
         "label",
         "type"
@@ -83,7 +72,8 @@
       "type": "string",
       "enum": [
         "document_type",
-        "managed_elsewhere"
+        "managed_elsewhere",
+        "parent"
       ]
     }
   }

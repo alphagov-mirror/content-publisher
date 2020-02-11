@@ -20,8 +20,8 @@ RSpec.describe DocumentTypeSelection do
 
     it "should find the corresponding object for every string id in the options" do
       document_type_selections.flat_map { |d| d["options"] }.each do |option|
-        if option.is_a? String
-          expect(DocumentTypeSelection.find(option))
+        if option["type"] == "parent"
+          expect(DocumentTypeSelection.find(option.keys.first))
             .to be_a(DocumentTypeSelection)
         end
       end
@@ -58,11 +58,7 @@ RSpec.describe DocumentTypeSelection do
 
   describe "SelectionOption" do
     describe ".id" do
-      it "returns the id when the option has sub types" do
-        expect(DocumentTypeSelection::SelectionOption.new("foo").id).to eq("foo")
-      end
-
-      it "returns the option key, if the option is an object" do
+      it "returns id of the option" do
         option = {
           "foo" => nil,
           "type" => "document_type",
@@ -73,26 +69,18 @@ RSpec.describe DocumentTypeSelection do
     end
 
     describe ".type" do
-      it "sets the type to subtypes when the option has sub types" do
-        expect(DocumentTypeSelection::SelectionOption.new("foo").type).to eq("subtypes")
-      end
-
-      it "returns the type when the option is an object" do
+      it "returns the type of the option" do
         option = {
           "foo" => nil,
           "type" => "document_type",
         }
 
-        expect(DocumentTypeSelection::SelectionOption.new(option).id).to eq("foo")
+        expect(DocumentTypeSelection::SelectionOption.new(option).type).to eq("document_type")
       end
     end
 
     describe ".label" do
-      it "sets the label to the capitalised option name when the option has sub types" do
-        expect(DocumentTypeSelection::SelectionOption.new("foo").label).to eq("Foo")
-      end
-
-      it "returns the type when the option is an object" do
+      it "returns the label of the option" do
         option = {
           "foo" => nil,
           "label" => "Foo type",
@@ -138,11 +126,16 @@ RSpec.describe DocumentTypeSelection do
     end
 
     describe ".subtypes?" do
-      it "returns true when the option is a string" do
-        expect(DocumentTypeSelection::SelectionOption.new("foo").subtypes?).to be true
+      it "returns true when the option is a parent" do
+        option = {
+          "foo" => nil,
+          "type" => "parent",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).subtypes?).to be true
       end
 
-      it "returns false when the option is an object" do
+      it "returns false when the option is not a parent" do
         option = {
           "foo" => nil,
           "type" => "document_type",

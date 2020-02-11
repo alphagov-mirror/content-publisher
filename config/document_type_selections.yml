@@ -1,10 +1,18 @@
 ---
 - id: root
   options:
-    - news
-    - guidance
-    - transparency
-    - policy
+    - news:
+      label: News
+      type: parent
+    - guidance:
+      label: Guidance
+      type: parent
+    - transparency:
+      label: Transparency
+      type: parent
+    - policy:
+      label: Policy
+      type: parent
     - document-collection:
       label: Document collection
       type: managed_elsewhere
