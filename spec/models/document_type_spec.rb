@@ -19,9 +19,7 @@ RSpec.describe DocumentType do
 
     it "should have a valid document type that exists in GovukSchemas" do
       document_types.each do |document_type|
-        unless document_type["managed_elsewhere"]
-          expect(document_type["id"]).to be_in(GovukSchemas::DocumentTypes.valid_document_types)
-        end
+        expect(document_type["id"]).to be_in(GovukSchemas::DocumentTypes.valid_document_types)
       end
     end
   end
