@@ -32,19 +32,19 @@ RSpec.describe WhitehallDocumentImportJob do
   it "calls WhitehallImporter::Import" do
     expect(WhitehallImporter::Import).to receive(:call)
                                      .with(whitehall_migration_document_import)
-    WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+    described_class.perform_now(whitehall_migration_document_import)
   end
 
   it "calls WhitehallImporter::Sync" do
     expect(WhitehallImporter::Sync).to receive(:call)
                                    .with(imported_document_import)
-    WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+    described_class.perform_now(whitehall_migration_document_import)
   end
 
   it "calls on the mark migration completed method" do
     expect(completed_document_import.whitehall_migration)
       .to receive(:check_migration_finished)
-    WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+    described_class.perform_now(whitehall_migration_document_import)
   end
 
   context "when the import fails" do
@@ -59,12 +59,12 @@ RSpec.describe WhitehallDocumentImportJob do
         whitehall_migration_document_import.whitehall_document_id,
       )
 
-      WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+      described_class.perform_now(whitehall_migration_document_import)
       expect(request).to have_been_requested
     end
 
     it "updates the document import state to 'import_failed'" do
-      WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+      described_class.perform_now(whitehall_migration_document_import)
 
       whitehall_migration_document_import.reload
       expect(whitehall_migration_document_import).to be_import_failed
@@ -83,12 +83,12 @@ RSpec.describe WhitehallDocumentImportJob do
         imported_document_import.whitehall_document_id,
       )
 
-      WhitehallDocumentImportJob.perform_now(imported_document_import)
+      described_class.perform_now(imported_document_import)
       expect(request).not_to have_been_requested
     end
 
     it "updates the document import state to 'sync_failed'" do
-      WhitehallDocumentImportJob.perform_now(imported_document_import)
+      described_class.perform_now(imported_document_import)
 
       imported_document_import.reload
       expect(imported_document_import).to be_sync_failed
@@ -103,14 +103,14 @@ RSpec.describe WhitehallDocumentImportJob do
     end
 
     it "retries the job" do
-      WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+      described_class.perform_now(whitehall_migration_document_import)
 
-      expect(WhitehallDocumentImportJob).to have_been_enqueued
+      expect(described_class).to have_been_enqueued
     end
 
     it "logs the error when retries have been exhausted" do
       perform_enqueued_jobs do
-        WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+        described_class.perform_now(whitehall_migration_document_import)
       end
 
       whitehall_migration_document_import.reload
@@ -129,10 +129,10 @@ RSpec.describe WhitehallDocumentImportJob do
     end
 
     it "does not retry the job and logs the error" do
-      WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+      described_class.perform_now(whitehall_migration_document_import)
 
       whitehall_migration_document_import.reload
-      expect(WhitehallDocumentImportJob).not_to have_been_enqueued
+      expect(described_class).not_to have_been_enqueued
       expect(whitehall_migration_document_import.error_log).to eq(error.inspect)
     end
   end
@@ -145,7 +145,7 @@ RSpec.describe WhitehallDocumentImportJob do
     end
 
     it "updates the document import state to 'import_aborted' and saves the error" do
-      WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+      described_class.perform_now(whitehall_migration_document_import)
       whitehall_migration_document_import.reload
 
       expect(whitehall_migration_document_import).to be_import_aborted
@@ -172,7 +172,7 @@ RSpec.describe WhitehallDocumentImportJob do
     end
 
     it "updates the document import state to 'import_aborted'" do
-      WhitehallDocumentImportJob.perform_now(whitehall_migration_document_import)
+      described_class.perform_now(whitehall_migration_document_import)
       whitehall_migration_document_import.reload
 
       expect(whitehall_migration_document_import).to be_import_aborted
@@ -195,7 +195,7 @@ RSpec.describe WhitehallDocumentImportJob do
     end
 
     it "updates the document import state to 'import_failed' and logs the error" do
-      job = WhitehallDocumentImportJob
+      job = described_class
       log_message = "Failed to unlock Whitehall document: #{error.inspect}"
       expect(job.logger).to receive(:warn).with(log_message)
 
