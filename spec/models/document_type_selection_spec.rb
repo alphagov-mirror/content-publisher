@@ -79,17 +79,6 @@ RSpec.describe DocumentTypeSelection do
       end
     end
 
-    describe ".label" do
-      it "returns the label of the option" do
-        option = {
-          "foo" => nil,
-          "label" => "Foo type",
-        }
-
-        expect(DocumentTypeSelection::SelectionOption.new(option).label).to eq("Foo type")
-      end
-    end
-
     describe ".managed_elsewhere_url" do
       let(:whitehall_host) { Plek.new.external_url_for("whitehall-admin") }
 

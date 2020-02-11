@@ -46,10 +46,6 @@ class DocumentTypeSelection
       option["type"]
     end
 
-    def label
-      option["label"]
-    end
-
     def subtypes?
       type == "parent"
     end
