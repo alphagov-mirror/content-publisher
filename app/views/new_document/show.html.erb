@@ -1,24 +1,24 @@
-<% content_for :browser_title, "#{@document_type_selection.id.titleize}" %>
+<% content_for :browser_title, t("document_type_selections.#{@document_type_selection.id}.label") %>
 <% content_for :back_link, render_back_link(href: show_path(document_type_selection_id: @document_type_selection.parent)) %>
 
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <%= form_tag select_path, data: { gtm: "confirm-document-type" } do %>
       <%= render "govuk_publishing_components/components/radio", {
-        heading: "#{@document_type_selection.id.titleize}",
+        heading: t("document_type_selections.#{@document_type_selection.id}.label"),
         is_page_heading: true,
         name: "selected_option_id",
         error_items: @issues&.items_for(:selected_option_id),
         items: @document_type_selection.options.map { |option|
           {
             value: option.id,
-            text: option.label,
-            hint_text: nil,
+            text: t("document_type_selections.#{option.id}.label"),
+            hint_text: I18n.exists?("document_type_selections.#{option.id}.description") ? t("document_type_selections.#{option.id}.description") : nil,
             data_attributes: {
               gtm: "choose-document-type",
-              "gtm-value": option.label,
+              "gtm-value": t("document_type_selections.#{option.id}.label"),
             },
-            conditional: nil,
+            conditional: I18n.exists?("document_type_selections.#{option.id}.hint") ? render_govspeak(t("document_type_selections.#{option.id}.hint")) : nil,
             bold: true,
           }
         }
