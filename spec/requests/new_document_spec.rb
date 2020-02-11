@@ -68,7 +68,7 @@ RSpec.describe "New Document" do
     it "shows the root document type selection when no selection has been made" do
       get show_path
       expect(response).to have_http_status(:ok)
-      expect(response.body).to have_content("Root")
+      expect(response.body).to have_content(I18n.t!("document_type_selections.root.label"))
     end
 
     it "shows the page for the selected document type" do
