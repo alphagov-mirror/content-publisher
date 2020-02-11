@@ -52,12 +52,4 @@ RSpec.describe DocumentType do
       expect(DocumentType.all.count).to eq(preexisting_doctypes)
     end
   end
-
-  describe "#managed_elsewhere_url" do
-    it "returns a full URL" do
-      document_type = DocumentType.find("consultation")
-      path = "https://whitehall-admin.test.gov.uk/government/admin/consultations/new"
-      expect(document_type.managed_elsewhere_url).to eq(path)
-    end
-  end
 end
