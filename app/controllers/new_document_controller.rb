@@ -2,7 +2,7 @@
 
 class NewDocumentController < ApplicationController
   def show
-    @document_type_selection = DocumentTypeSelection.find(params[:selected_option_id] || "root")
+    @document_type_selection = DocumentTypeSelection.find(params[:document_type_selection_id] || "root")
   end
 
   def select
@@ -22,8 +22,7 @@ class NewDocumentController < ApplicationController
              assigns: { issues: issues, document_type_selection: previous_selection },
              status: :unprocessable_entity
     elsif needs_refining
-      render :show,
-             assigns: { issues: issues, document_type_selection: current_selection }
+      redirect_to show_path(document_type_selection_id: current_selection.id)
     elsif redirect_url
       redirect_to redirect_url
     else

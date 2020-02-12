@@ -33,7 +33,8 @@ RSpec.describe "New Document" do
     it "asks the user to refine their selection when the document type has subtypes" do
       post select_path, params: { document_type_selection_id: "root", selected_option_id: "news" }
 
-      expect(response).to have_http_status(:success)
+      expect(response).to redirect_to(show_path(document_type_selection_id: "news"))
+      follow_redirect!
       expect(response.body).to have_content("News")
     end
 
