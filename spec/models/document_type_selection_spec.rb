@@ -26,6 +26,11 @@ RSpec.describe DocumentTypeSelection do
         end
       end
     end
+
+    it "only allows unique document type selections" do
+      ids = document_type_selections.pluck("id")
+      expect(ids.size).to eq(ids.uniq.size)
+    end
   end
 
   describe ".all" do
