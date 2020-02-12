@@ -33,15 +33,26 @@ module WhitehallImporter
 
     def redirect_asset(whitehall_asset)
       GdsApi.asset_manager.update_asset(
-        whitehall_asset.whitehall_asset_id,
+        asset_id(whitehall_asset),
         redirect_url: whitehall_asset.content_publisher_asset.file_url,
       )
       whitehall_asset.update!(state: "redirected")
     end
 
     def remove_asset(whitehall_asset)
-      GdsApi.asset_manager.delete_asset(whitehall_asset.whitehall_asset_id)
+      GdsApi.asset_manager.delete_asset(asset_id(whitehall_asset))
       whitehall_asset.update!(state: "removed")
+    end
+
+    def asset_manager_attributes(whitehall_asset)
+      @asset_manager_attributes ||= GdsApi.asset_manager
+                                          .whitehall_asset(whitehall_asset.legacy_url_path)
+                                          .to_hash
+    end
+
+    def asset_id(whitehall_asset)
+      url = asset_manager_attributes(whitehall_asset)["id"]
+      url[/\/assets\/(.*)/, 1]
     end
   end
 end
