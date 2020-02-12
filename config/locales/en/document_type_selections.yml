@@ -5,19 +5,27 @@ en:
     news:
       label: News
       description: To tell users about something government has done or will do
-      hint: For example, news stories, press releases, speeches, or statements
+      guidance:
+        body_govspeak: |
+          For example, news stories, press releases, speeches, or statements
     guidance:
       label: Guidance
       description: To help the user do something or understand what they need to do
-      hint: For example, manuals, or statutory guidance
+      guidance:
+        body_govspeak: |
+          For example, manuals, or statutory guidance
     transparency:
       label: Transparency and statistics
       description: To provide information that helps users hold government to account
-      hint: For example, statistics, FOI data, or reports
+      guidance:
+        body_govspeak: |
+          For example, statistics, FOI data, or reports
     policy:
       label: Policy or consultation
       description: To explain the government’s position or request views or evidence on an issue
-      hint: For example, policy papers, impact assessments, or case studies
+      guidance:
+        body_govspeak: |
+          For example, policy papers, impact assessments, or case studies
     document-collection:
       label: Document collection
       description: To create a list of related documents on a single page
@@ -30,15 +38,17 @@ en:
     news_story:
       label: News story
       description: "News written for GOV.UK which users need, can act on, and cannot get from other sources."
-      hint: |
-        Do not include advice in news stories. Do not use to promote other content.
-        Read the full [guidance on news stories](https://www.gov.uk/guidance/content-design/content-types#news-story).
+      guidance:
+        body_govspeak: |
+          Do not include advice in news stories. Do not use to promote other content.
+          Read the full [guidance on news stories](https://www.gov.uk/guidance/content-design/content-types#news-story).
     press_release:
       label: Press release
       description: "Unedited press releases as sent to the media, and official statements from the organisation."
-      hint: |
-        Do not use to promote other content. Statements to Parliament should use the Speech document type.
-        Read the full [guidance on press releases](https://www.gov.uk/guidance/content-design/content-types#press-release).
+      guidance:
+        body_govspeak: |
+          Do not use to promote other content. Statements to Parliament should use the Speech document type.
+          Read the full [guidance on press releases](https://www.gov.uk/guidance/content-design/content-types#press-release).
     fatality_notice:
       label: Fatality notice
       description: Initial fatality notices and subsequent obituaries of forces and MOD personnel
