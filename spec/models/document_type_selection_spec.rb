@@ -48,6 +48,17 @@ RSpec.describe DocumentTypeSelection do
     end
   end
 
+  describe ".parent" do
+    it "should return nil if we pass it 'root'" do
+      expect(DocumentTypeSelection.find("root").parent).to be_nil
+    end
+
+    it "should return a DocumentTypeSelection for the parent if it exists" do
+      expect(DocumentTypeSelection.find("news").parent)
+        .to eq("root")
+    end
+  end
+
   describe "SelectionOption" do
     describe ".id" do
       it "returns id of the option" do
