@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class DocumentTypeSelection
   include InitializeWithHash
 
@@ -15,8 +13,45 @@ class DocumentTypeSelection
       hashes = YAML.load_file(Rails.root.join("config/document_type_selections.yml"))
 
       hashes.map do |hash|
+        hash["options"].map! do |option|
+          SelectionOption.new(option)
+        end
         new(hash)
       end
+    end
+  end
+
+  class SelectionOption
+    attr_reader :option
+
+    def initialize(option)
+      @option = option
+    end
+
+    def id
+      option["id"]
+    end
+
+    def type
+      option["type"]
+    end
+
+    def subtypes?
+      type == "parent"
+    end
+
+    def managed_elsewhere_url
+      return unless managed_elsewhere?
+
+      if option["hostname"]
+        Plek.new.external_url_for(option.fetch("hostname")) + option.fetch("path")
+      else
+        option["path"]
+      end
+    end
+
+    def managed_elsewhere?
+      type == "managed_elsewhere"
     end
   end
 end

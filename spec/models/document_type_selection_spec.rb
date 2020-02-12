@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "json"
 
 RSpec.describe DocumentTypeSelection do
@@ -47,6 +45,85 @@ RSpec.describe DocumentTypeSelection do
     it "raises a RuntimeError when there is no corresponding entry for the id" do
       expect { DocumentTypeSelection.find("unknown_document_type") }
         .to raise_error(RuntimeError, "Document type selection unknown_document_type not found")
+    end
+  end
+
+  describe "SelectionOption" do
+    describe ".id" do
+      it "returns id of the option" do
+        option = {
+          "id" => "foo",
+          "type" => "document_type",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).id).to eq("foo")
+      end
+    end
+
+    describe ".type" do
+      it "returns the type of the option" do
+        option = {
+          "id" => "foo",
+          "type" => "document_type",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).type).to eq("document_type")
+      end
+    end
+
+    describe ".managed_elsewhere_url" do
+      let(:whitehall_host) { Plek.new.external_url_for("whitehall-admin") }
+
+      it "returns nil if the type is not managed_elsewhere" do
+        option = {
+          "id" => "foo",
+          "type" => "document_type",
+          "path" => "/bar",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).managed_elsewhere_url).to be nil
+      end
+
+      it "returns the path if a hostname is not provided" do
+        option = {
+          "id" => "foo",
+          "type" => "managed_elsewhere",
+          "path" => "/bar",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).managed_elsewhere_url).to eq("/bar")
+      end
+
+      it "returns the full url if the hostname is provided" do
+        option = {
+          "id" => "foo",
+          "type" => "managed_elsewhere",
+          "hostname" => "whitehall-admin",
+          "path" => "/bar",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).managed_elsewhere_url).to eq("#{whitehall_host}/bar")
+      end
+    end
+
+    describe ".subtypes?" do
+      it "returns true when the option is a parent" do
+        option = {
+          "id" => "foo",
+          "type" => "parent",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).subtypes?).to be true
+      end
+
+      it "returns false when the option is not a parent" do
+        option = {
+          "id" => "foo",
+          "type" => "document_type",
+        }
+
+        expect(DocumentTypeSelection::SelectionOption.new(option).subtypes?).to be false
+      end
     end
   end
 end
