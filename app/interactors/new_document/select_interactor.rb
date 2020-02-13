@@ -1,22 +1,16 @@
 class NewDocument::SelectInteractor < ApplicationInteractor
+  include Rails.application.routes.url_helpers
+
   delegate :params,
            :user,
            :redirect_url,
-           :document,
-           :current_selection,
            :document_type_selection,
            to: :context
 
   def call
     find_document_type_selection
     check_for_issues
-    find_current_selection
     find_redirect_url
-
-    if create_document?
-      create_document
-      create_timeline_entry
-    end
   end
 
 private
@@ -32,27 +26,37 @@ private
     context.fail!(issues: issues) if issues.any?
   end
 
-  def find_current_selection
-    return unless selected_option.subtypes?
-
-    context.current_selection = DocumentTypeSelection.find(params[:selected_option_id])
+  def find_redirect_url
+    context.redirect_url = if selected_option.subtypes?
+                             refine_further_url
+                           elsif selected_option.managed_elsewhere?
+                             selected_option.managed_elsewhere_url
+                           elsif create_document?
+                             create_document_url
+                           end
   end
 
-  def find_redirect_url
-    context.redirect_url = selected_option.managed_elsewhere_url
+  def refine_further_url
+    new_document_path(type: selected_option.id)
   end
 
   def create_document?
     selected_option.type == "document_type"
   end
 
+  def create_document_url
+    document = create_document
+    create_timeline_entry(document)
+    content_path(document)
+  end
+
   def create_document
-    context.document = CreateDocumentService.call(
+    CreateDocumentService.call(
       document_type_id: params[:selected_option_id], tags: default_tags, user: user,
     )
   end
 
-  def create_timeline_entry
+  def create_timeline_entry(document)
     TimelineEntry.create_for_status_change(entry_type: :created,
                                            status: document.current_edition.status)
   end

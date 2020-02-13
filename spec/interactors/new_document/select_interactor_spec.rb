@@ -1,4 +1,6 @@
 RSpec.describe NewDocument::SelectInteractor do
+  include Rails.application.routes.url_helpers
+
   describe ".call" do
     let(:user) { build(:user, organisation_content_id: "org-id") }
 
@@ -17,23 +19,25 @@ RSpec.describe NewDocument::SelectInteractor do
       expect(result).not_to be_success
     end
 
-    it "returns the previously selected document type selection" do
+    it "returns the document type selection" do
       document_type_selection = DocumentTypeSelection.find("root")
 
       result = described_class.call(params: { type: "root", selected_option_id: "news" })
       expect(result.document_type_selection.id).to eq(document_type_selection.id)
     end
 
-    it "returns the current document type selection" do
-      current_selection = DocumentTypeSelection.find("news")
-
-      result = described_class.call(params: { type: "root", selected_option_id: "news" })
-      expect(result.current_selection.id).to eq(current_selection.id)
+    context "when the document type is managed elsewhere" do
+      it "returns managed_elsewhere_url as the redirect url" do
+        result = described_class.call(params: { type: "root", selected_option_id: "not_sure" })
+        expect(result.redirect_url).to eq("/documents/publishing-guidance")
+      end
     end
 
-    it "returns the redirect url if the selected document type is managed elsewhere" do
-      result = described_class.call(params: { type: "root", selected_option_id: "not_sure" })
-      expect(result.redirect_url).to eq("/documents/publishing-guidance")
+    context "when the document type has subtypes" do
+      it "returns the new_document_path as the redirect url" do
+        result = described_class.call(params: { type: "root", selected_option_id: "news" })
+        expect(result.redirect_url).to eq(new_document_path(type: "news"))
+      end
     end
 
     context "when the selected document type doesn't have subtypes and can be created" do
@@ -54,6 +58,11 @@ RSpec.describe NewDocument::SelectInteractor do
         expect { described_class.call(params: params, user: user) }
           .to change(TimelineEntry, :count)
           .by(1)
+      end
+
+      it "returns the content_path as the redirect url" do
+        result = described_class.call(params: params, user: user)
+        expect(result.redirect_url).to eq(content_path(Document.last))
       end
     end
   end
