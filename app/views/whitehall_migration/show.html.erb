@@ -1,0 +1,13 @@
+<h1>Whitehall Migration numero <%= @whitehall_migration.id %> </h1>
+<li>ID: <%= @whitehall_migration.id %></li>
+<li>Created at: <%= @whitehall_migration.created_at %></li>
+<li>Updated at: <%= @whitehall_migration.updated_at %></li>
+
+<h2>Number of documents: <%= @whitehall_migration.document_imports.count %>
+
+<h3>Document Imports</h3>
+
+<% @whitehall_migration.document_imports.each do |document| %>
+   <li>Whitehall Document ID: <%= document.whitehall_document_id %></li>
+   <li>State: <%= document.state %></li>
+<% end %>
