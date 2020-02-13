@@ -1,4 +1,6 @@
 class WhitehallMigrationController < ApplicationController
+  before_action { authorise_user!(User::DEBUG_PERMISSION) }
+
   def show
     @whitehall_migration = whitehall_migration
   end
