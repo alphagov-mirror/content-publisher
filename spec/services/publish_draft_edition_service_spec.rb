@@ -16,12 +16,18 @@ RSpec.describe PublishDraftEditionService do
         publish_request = stub_publishing_api_publish(edition.content_id,
                                                       update_type: nil,
                                                       locale: edition.locale)
+        time = nil
+        freeze_time do
+          time = Time.current
+          described_class.call(edition, user, with_review: true)
+        end
 
-        described_class.call(edition, user, with_review: true)
         expect(publish_request).to have_been_requested
         expect(edition.document.live_edition).to eq(edition)
         expect(edition).to be_published
         expect(edition).to be_live
+        expect(edition.published_at).to eq(time)
+        expect(edition.document.first_published_at).to eq(time)
       end
 
       it "can specify if edition is reviewed" do
@@ -31,14 +37,22 @@ RSpec.describe PublishDraftEditionService do
     end
 
     context "when there is a live edition" do
+      let(:document) { create(:document, :with_current_and_live_editions) }
+      let(:current_edition) { document.current_edition }
+
       it "supersedes the live edition" do
-        document = create(:document, :with_current_and_live_editions)
-        current_edition = document.current_edition
         live_edition = document.live_edition
 
         described_class.call(current_edition, user, with_review: true)
         expect(document.live_edition).to eq(current_edition)
         expect(live_edition).to be_superseded
+      end
+
+      it "doesn't overwrite when the document was first published" do
+        first_published_at = document.reload.first_published_at
+        described_class.call(current_edition, user, with_review: true)
+
+        expect(document.first_published_at).to eq(first_published_at)
       end
     end
 
