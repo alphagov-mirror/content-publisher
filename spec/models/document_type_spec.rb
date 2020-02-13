@@ -4,21 +4,18 @@ RSpec.describe DocumentType do
   let(:document_types) { YAML.load_file(Rails.root.join("config/document_types.yml")) }
 
   describe "all configured document types are valid" do
-    it "should conform to the document type schema" do
-      document_types.each do |document_type|
+    document_types = YAML.load_file(Rails.root.join("config/document_types.yml"))
+    document_types.each do |document_type|
+      it "should have #{document_type} conforming to document type schema" do
         expect(document_type).to be_valid_against_schema("document_type")
       end
-    end
 
-    it "should have locale keys that conform to the document type locale schema" do
-      document_types.each do |document_type|
+      it "should have #{document_type} conforming to document type locale schema" do
         translations = I18n.t("document_types.#{document_type['id']}").deep_stringify_keys
         expect(translations).to be_valid_against_schema("document_types_locale")
       end
-    end
 
-    it "should have a valid document type that exists in GovukSchemas" do
-      document_types.each do |document_type|
+      it "should have #{document_type} that exists in GovukSchemas" do
         expect(document_type["id"]).to be_in(GovukSchemas::DocumentTypes.valid_document_types)
       end
     end

@@ -3,25 +3,23 @@ require "json"
 RSpec.describe DocumentTypeSelection do
   let(:document_type_selections) { YAML.load_file(Rails.root.join("config/document_type_selections.yml")) }
 
-  describe "all configured document types selections are valid" do
-    it "should conform to the document type selection schema" do
-      document_type_selections.each do |document_type_selection|
+  describe "all configured document type selections are valid" do
+    document_type_selections = YAML.load_file(Rails.root.join("config/document_type_selections.yml"))
+    document_type_selections.each do |document_type_selection|
+      it "should have #{document_type_selection} conforming to document type selection schema" do
         expect(document_type_selection).to be_valid_against_schema("document_type_selection")
       end
-    end
 
-    it "should have locale keys that conform to the document type selection locale schema" do
-      document_type_selections.each do |document_type_selection|
+      it "should have #{document_type_selection} conforming to document type selection locale schema" do
         translations = I18n.t("document_type_selections.#{document_type_selection['id']}").deep_stringify_keys
         expect(translations).to be_valid_against_schema("document_type_selection_locale")
       end
-    end
 
-    it "should have locale keys for every option, conforming to the document type selection locale schema" do
-      options = document_type_selections.map { |s| s["options"] }.flatten
-      options.each do |document_type_selection|
-        translations = I18n.t("document_type_selections.#{document_type_selection['id']}").deep_stringify_keys
-        expect(translations).to be_valid_against_schema("document_type_selection_locale")
+      it "should have #{document_type_selection} options conforming to document type selection locale schema" do
+        document_type_selection["options"].each do |option|
+          translations = I18n.t("document_type_selections.#{option['id']}").deep_stringify_keys
+          expect(translations).to be_valid_against_schema("document_type_selection_locale")
+        end
       end
     end
 
