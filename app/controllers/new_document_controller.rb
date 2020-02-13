@@ -23,7 +23,7 @@ class NewDocumentController < ApplicationController
              assigns: { issues: issues, document_type_selection: document_type_selection },
              status: :unprocessable_entity
     elsif current_selection
-      redirect_to show_path(type: current_selection.id)
+      redirect_to new_document_path(type: current_selection.id)
     elsif redirect_url
       redirect_to redirect_url
     else
