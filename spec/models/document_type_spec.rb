@@ -5,25 +5,15 @@ RSpec.describe DocumentType do
 
   describe "all configured document types are valid" do
     it "should conform to the document type schema" do
-      document_type_schema = JSON.parse(File.read("config/schemas/document_type.json"))
       document_types.each do |document_type|
-        validator = JSON::Validator.fully_validate(document_type_schema, document_type)
-        expect(validator).to(
-          be_empty,
-          "Document type validation for #{document_type['id']} failed: \n\t#{validator.join("\n\t")}",
-        )
+        expect(document_type).to be_valid_against_schema("document_type")
       end
     end
 
     it "should have locale keys that conform to the document type locale schema" do
-      document_types_locale_schema = JSON.parse(File.read("config/schemas/document_types_locale.json"))
       document_types.each do |document_type|
         translations = I18n.t("document_types.#{document_type['id']}").deep_stringify_keys
-        validator = JSON::Validator.fully_validate(document_types_locale_schema, translations)
-        expect(validator).to(
-          be_empty,
-          "Documents type locale validation for #{document_type['id']} failed: \n\t#{validator.join("\n\t")}",
-        )
+        expect(translations).to be_valid_against_schema("document_types_locale")
       end
     end
 

@@ -4,40 +4,24 @@ RSpec.describe DocumentTypeSelection do
   let(:document_type_selections) { YAML.load_file(Rails.root.join("config/document_type_selections.yml")) }
 
   describe "all configured document types selections are valid" do
-    let(:document_type_selection_schema) { JSON.parse(File.read("config/schemas/document_type_selection.json")) }
-
     it "should conform to the document type selection schema" do
       document_type_selections.each do |document_type_selection|
-        validator = JSON::Validator.fully_validate(document_type_selection_schema, document_type_selection)
-        expect(validator).to(
-          be_empty,
-          "Validation for #{document_type_selection['id']} failed: \n\t#{validator.join("\n\t")}",
-        )
+        expect(document_type_selection).to be_valid_against_schema("document_type_selection")
       end
     end
 
     it "should have locale keys that conform to the document type selection locale schema" do
-      document_types_locale_schema = JSON.parse(File.read("config/schemas/document_type_selection_locale.json"))
       document_type_selections.each do |document_type_selection|
         translations = I18n.t("document_type_selections.#{document_type_selection['id']}").deep_stringify_keys
-        validator = JSON::Validator.fully_validate(document_types_locale_schema, translations)
-        expect(validator).to(
-          be_empty,
-          "Document type selections locale validation for #{document_type_selection['id']} failed: \n\t#{validator.join("\n\t")}",
-        )
+        expect(translations).to be_valid_against_schema("document_type_selection_locale")
       end
     end
 
     it "should have locale keys for every option, conforming to the document type selection locale schema" do
-      document_types_locale_schema = JSON.parse(File.read("config/schemas/document_type_selection_locale.json"))
       options = document_type_selections.map { |s| s["options"] }.flatten
       options.each do |document_type_selection|
         translations = I18n.t("document_type_selections.#{document_type_selection['id']}").deep_stringify_keys
-        validator = JSON::Validator.fully_validate(document_types_locale_schema, translations)
-        expect(validator).to(
-          be_empty,
-          "Document type selections locale validation for #{document_type_selection['id']} failed: \n\t#{validator.join("\n\t")}",
-        )
+        expect(translations).to be_valid_against_schema("document_type_selection_locale")
       end
     end
 
