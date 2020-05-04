@@ -53,7 +53,6 @@ ModalWorkflow.prototype.setModalAriaLabel = function (ariaLabel) {
 
 ModalWorkflow.prototype.initComponents = function () {
   window.GOVUK.modules.start($(this.$modal))
-  window.GOVUKFrontend.initAll(this.$modal)
 }
 
 ModalWorkflow.prototype.overrideActions = function (actions) {
