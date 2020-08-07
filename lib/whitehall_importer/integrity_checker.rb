@@ -241,7 +241,7 @@ module WhitehallImporter
     def default_image?(proposed_image_payload, publishing_api_image, attribute)
       attribute == "alt_text" &&
         proposed_image_payload.empty? &&
-        publishing_api_image[attribute] == "placeholder"
+        publishing_api_image[attribute] == ""
     end
 
     def publishing_api_unpublishing
